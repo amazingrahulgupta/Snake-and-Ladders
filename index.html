@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jain Pathshala Snake and Ladders</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Roboto:wght@400;600;700&display=swap');
+
+        :root {
+            --snake-color: #2ecc71;
+            --ladder-color: #27ae60;
+            --button-disabled-bg: #95a5a6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Roboto', 'Noto Sans Devanagari', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .fullscreen-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 0px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            z-index: 100;
+        }
+        
+        .game-title { display: flex; align-items: center; gap: 15px; }
+        .logo-container { width: 160px; height: 160px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; cursor: default; transition: all 0.3s ease; overflow: hidden; }
+        .logo-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; }
+        .title-text { color: white; font-size: 2.2em; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: flex-end;}
+        .volume-control { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 25px; }
+        .volume-slider { width: 80px; }
+        
+        .header-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-size: 1em; transition: all 0.3s ease; }
+        .header-btn:hover:not(:disabled) { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .header-btn:disabled { background: var(--button-disabled-bg); cursor: not-allowed; opacity: 0.6; transform: none !important; }
+        
+        .main-container { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; }
+        .game-board-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        
+        .board-logo-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            backdrop-filter: blur(5px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .board-logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .game-board {
+            width: min(70vh, 80vw);
+            height: min(70vh, 80vw);
+            background: linear-gradient(45deg, #f0f8ff, #e6f3ff);
+            border: 8px solid #2c3e50;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            padding: 10px;
+            position: relative;
+        }
+        
+        .cell { background: linear-gradient(135deg, #ffffff, #f8f9fa); border: 2px solid #34495e; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.8em, 2vw, 1.2em); color: #2c3e50; position: relative; transition: all 0.3s ease; }
+        .cell .emoji { font-size: 1.8em; position: absolute; z-index: 2; }
+        .cell-number { position: absolute; top: 2px; left: 4px; font-size: 0.7em; color: #7f8c8d; }
+        
+        .snake-start { background: #d9f7e6; }
+        .ladder-start { background: #d4edda; }
+
+        .player {
+            position: absolute;
+            width: 35px; /* Increased size for better visibility of icon/name */
+            height: 35px; /* Increased size */
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.8); /* Slightly thicker border */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4); /* Enhanced shadow */
+            font-size: 1em; /* Adjusted font size for single initial */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            transition: all 0.5s ease;
+            z-index: 10;
+            animation: pulse 2s infinite;
+            /* Added properties for avatar/initial display */
+            overflow: hidden; /* Important for containing images */
+            background-size: cover; /* For background images */
+            background-position: center; /* For background images */
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        
+        .player img.avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%; /* Ensure image is circular */
+            display: block; /* Remove any default inline spacing */
+        }
+
+        .player-1 { background: #e74c3c; } .player-2 { background: #3498db; } .player-3 { background: #2ecc71; } .player-4 { background: #f1c40f; } .player-5 { background: #9b59b6; } .player-6 { background: #1abc9c; }
+        
+        .side-panel { width: 350px; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .setup-section, .game-section { display: none; } /* .setup-section is now unused HTML */
+        .game-section.active { display: block; }
+        .section-title { font-size: 1.5em; font-weight: 700; color: #2c3e50; text-align: center; margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #34495e; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 1em; transition: all 0.3s ease; }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+        .file-upload { position: relative; display: inline-block; width: 100%; }
+        .file-upload input[type=file] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .file-upload-label { display: block; padding: 12px; background: #ecf0f1; border: 2px dashed #bdc3c7; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .file-upload-label:hover { background: #d5dbdb; border-color: #95a5a6; }
+        
+        .sound-upload-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .sound-upload-group label { font-weight: normal; flex-basis: 40%; }
+        .sound-upload-label { padding: 5px 10px; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 5px; cursor: pointer; text-align: center; flex-basis: 55%; font-size: 0.9em; }
+        .sound-upload-label:hover { background: #e0e0e0; }
+
+        .btn { padding: 12px 25px; border: none; border-radius: 25px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:disabled { background: var(--button-disabled-bg); box-shadow: none !important; transform: none !important; cursor: not-allowed; opacity: 0.6; }
+        
+        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .btn-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4); }
+        .btn-secondary { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-secondary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(127, 140, 141, 0.4); }
+        .btn-success { background: linear-gradient(135deg, var(--ladder-color), #229954); color: white; }
+        .btn-success:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
+        
+        .dice-container { text-align: center; margin-bottom: 20px; }
+        .dice { width: 80px; height: 80px; background: white; border: 3px solid #2c3e50; border-radius: 15px; display: inline-flex; align-items: center; justify-content: center; font-size: 2.5em; font-weight: bold; color: #2c3e50; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .dice:hover { transform: scale(1.1) rotate(5deg); }
+        
+        .current-player { text-align: center; padding: 15px; background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 15px; font-size: 1.2em; font-weight: 600; margin-bottom: 15px; transition: background 0.5s ease; }
+        
+        .players-list { background: #ecf0f1; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .player-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #bdc3c7; }
+        .player-item:last-child { border-bottom: none; }
+        
+        .question-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+            pointer-events: none;
+        }
+        .question-popup.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+            pointer-events: all;
+        }
+        
+        .question-card { background: white; border-radius: 20px; padding: 60px; max-width: 850px; width: 90vw; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transform: scale(0.8); transition: transform 0.3s ease; }
+        .question-popup.active .question-card { transform: scale(1); }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .timer { background: #e74c3c; color: white; padding: 10px 15px; border-radius: 25px; font-weight: bold; font-size: 1.2em; }
+        .timer.warning { background: #f39c12; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.5; } }
+        .question-text { font-size: 2.4em; font-weight: 800; margin-bottom: 30px; text-align: center; color: #2c3e50; line-height: 1.4; }
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .option { padding: 25px; border: 2px solid #bdc3c7; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: center; font-weight: 800; font-size: 2.1em; }
+        .option:hover { border-color: #3498db; background: #ecf0f1; transform: translateY(-2px); }
+        .option.selected { background: #3498db; color: white; border-color: #2980b9; }
+        .option.correct { background: var(--ladder-color); color: white; border-color: #229954; }
+        .option.wrong { background: #e74c3c; color: white; border-color: #c0392b; }
+        .winners-section { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 15px; text-align: center; }
+        .winner-item { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3); font-size: 1.1em; }
+        .winner-item:last-child { border-bottom: none; }
+        
+        .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        
+        .snake-outline, .snake-body {
+            stroke-linecap: round;
+            fill: none;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
+        .snake-outline {
+            stroke: #2c3e50;
+            stroke-width: 10px;
+        }
+        .snake-body {
+            stroke: var(--snake-color);
+            stroke-width: 6px;
+        }
+
+        .ladder-side { stroke: #8B4513; stroke-width: 8px; stroke-linecap: round; opacity: 0.9; }
+        .ladder-rung { stroke: #AF601A; stroke-width: 6px; stroke-linecap: round; opacity: 0.9; }
+        
+        .developer-credit { text-align: center; font-size: 0.8em; color: #7f8c8d; }
+        .side-panel-footer { margin-top: auto; padding-top: 15px; }
+        .history-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+        .history-controls .btn { padding: 10px 15px; flex-grow: 1; }
+
+        .dice-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s;
+            pointer-events: none;
+        }
+        .dice-popup.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+            pointer-events: all;
+        }
+        .dice-popup-content {
+            width: 550px;
+            height: 550px;
+            background: white;
+            border: 5px solid #2c3e50;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25em;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .dice-popup.active .dice-popup-content {
+            transform: scale(1);
+        }
+        .dice-popup-content.rolling {
+            animation: roll 0.5s infinite linear;
+        }
+        @keyframes roll { from { transform: rotate(0deg) scale(1.1); } to { transform: rotate(360deg) scale(1.1); } }
+
+        .guideline-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            padding-top: 80px;
+            max-width: 90vw;
+            width: 1000px;
+            height: 90vh;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .question-popup.active .guideline-card {
+             transform: scale(1);
+        }
+
+        .guideline-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: var(--ladder-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .guideline-close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        #guidelineFrame {
+            flex-grow: 1;
+            border-radius: 10px;
+        }
+
+        #groupOptionsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-height: 40vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .group-option {
+            padding: 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2em;
+            text-transform: capitalize;
+        }
+        .group-option:hover {
+            border-color: #3498db;
+            background: #ecf0f1;
+            transform: translateY(-2px);
+        }
+        .group-option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); /* Add subtle shadow */
+        }
+
+        /* --- NEW CSS for Setup Prompt Popup --- */
+        .setup-card {
+            background: linear-gradient(145deg, #ffffff, #f0f8ff); /* Softer, inviting background */
+            border: 5px solid #a8dadc; /* A calming border color */
+            padding: 40px; /* Adjust padding for aesthetics */
+            max-width: 900px; /* Wider card */
+            width: 90vw;
+            text-align: center;
+            position: relative;
+            overflow-y: auto; /* Allow scrolling if content is too tall */
+            max-height: 90vh; /* Limit height to viewport */
+            display: flex; /* Use flexbox for internal layout */
+            flex-direction: column;
+            gap: 15px; /* Space between input groups */
+        }
+
+        .setup-card .section-title.popup-title { /* More specific selector */
+            font-size: 2.5em; /* Larger, more impactful title */
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .setup-card .input-group label {
+            font-size: 1.1em; /* Slightly larger labels */
+            color: #34495e;
+            font-weight: 700;
+        }
+
+        .setup-card .input-group input[type="text"],
+        .setup-card .input-group select {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 10px; /* Slightly more rounded inputs */
+            padding: 15px; /* More padding */
+            font-size: 1.1em;
+        }
+
+        .setup-card .input-group input[type="text"]:focus,
+        .setup-card .input-group select:focus {
+            outline: none; /* Remove default focus outline */
+            border-color: #45a29e; /* Highlight color for focus */
+            box-shadow: 0 0 10px rgba(69, 162, 158, 0.4);
+        }
+
+        .setup-card #startNewGameBtn {
+            margin-top: 30px; /* More space above the button */
+            padding: 18px 35px; /* Larger button */
+            font-size: 1.2em; /* Larger font */
+            border-radius: 30px;
+            background: linear-gradient(135deg, #4CAF50, #2E8B57); /* Greenish primary button */
+            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+        }
+
+        .setup-card #startNewGameBtn:not(:disabled):hover {
+            background: linear-gradient(135deg, #2E8B57, #4CAF50);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 139, 87, 0.5);
+        }
+
+        /* Specific styling for player name/icon inputs within the setup modal */
+        #setupPlayerNamesContainer .input-group {
+            margin-bottom: 10px; /* Tighter spacing for player inputs */
+        }
+
+        #setupPlayerNamesContainer .player-icon-emoji {
+            max-width: 100px; /* Limit emoji input width for better alignment */
+            flex-shrink: 0; /* Prevent it from shrinking */
+        }
+
+        #setupPlayerNamesContainer .file-upload {
+            flex-grow: 1; /* Allow file upload label to take remaining space */
+        }
+
+        #setupPlayerNamesContainer .file-upload-label {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            min-width: 120px; /* Ensure minimum width for upload label */
+            text-align: center; /* Center text in label */
+        }
+
+        @media (max-width: 1200px) {
+            .board-logo-container { display: none; }
+        }
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; padding: 10px; }
+            .side-panel { width: 100%; height: auto; max-height: 45vh; order: 1; }
+            .game-board-container { order: 2; }
+            .header { order: 0; padding: 10px 15px; }
+            .title-text { font-size: 1.5em; }
+            /* Adjust setup card for smaller screens */
+            .setup-card { padding: 20px; gap: 10px; }
+            .setup-card .section-title.popup-title { font-size: 1.8em; margin-bottom: 15px; }
+            .setup-card .input-group label { font-size: 1em; }
+            .setup-card .input-group input, .setup-card .input-group select { padding: 10px; font-size: 0.9em; }
+            .setup-card #startNewGameBtn { padding: 15px 25px; font-size: 1em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-container" id="gameContainer">
+        <div class="header">
+            <div class="game-title">
+                <div class="logo-container">
+                    <span>🎲</span>
+                    <img class="logo-img" id="gameLogoImg" alt="Game Logo">
+                </div>
+                <div class="title-text" id="gameTitle">Jain Pathshala Snake and Ladders</div>
+            </div>
+            <div class="controls">
+                <div class="volume-control">
+                    <span id="volumeIcon">🔊</span>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+                </div>
+                <button class="header-btn" id="headerStartBtn" onclick="showSetupPrompt()">🚀 Start Game</button>
+                <button class="header-btn" id="headerNewGameBtn" onclick="resetGame()">🔄 New Game</button>
+                <button class="header-btn" id="headerGuidelinesBtn" onclick="showGuidelines()">📜 Guidelines</button>
+                <button class="header-btn" id="headerEndGameBtn" onclick="forceEndGame()">🏆 Declare Winner</button>
+                <button class="header-btn" id="headerFullscreenBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            </div>
+        </div>
+        
+        <div class="main-container">
+            <div class="game-board-container">
+                <div class="board-logo-container">
+                    <img id="boardLogoImg" class="board-logo-img" alt="Board Logo">
+                </div>
+                <div class="game-board" id="gameBoard">
+                    <svg id="svgLayer" class="svg-layer"></svg>
+                </div>
+            </div>
+            
+            <div class="side-panel">
+                <div class="game-section" id="gameSection">
+                    <h2 class="section-title">🎯 Game Status</h2>
+                    <div class="current-player" id="currentPlayerDisplay">Player 1's Turn</div>
+                    <div class="dice-container">
+                        <div class="dice" id="dice" onclick="rollDice()">🎲</div>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button class="btn btn-success" onclick="rollDice()" id="rollButton">🎲 Roll Dice</button>
+                            <button class="btn btn-secondary" onclick="skipTurn()" id="skipTurnButton">Skip Turn</button>
+                        </div>
+                    </div>
+                    <div class="players-list" id="playersList"></div>
+                    <div class="winners-section" id="winnersSection" style="display: none;"><h3>🏆 Winners</h3><div id="winnersList"></div></div>
+                </div>
+                
+                <div class="side-panel-footer">
+                    <div class="history-controls">
+                        <button class="btn btn-secondary" id="undoButton" onclick="undoStep()">↶ Undo</button>
+                        <button class="btn btn-secondary" id="redoButton" onclick="redoStep()">Redo ↷</button>
+                    </div>
+                    <p class="developer-credit">Developed by Sudeep Jain Shastri</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-popup" id="questionPopup">
+            <div class="question-card">
+                <div class="question-header"><h3>❓ Question</h3><div class="timer" id="questionTimer">15</div></div>
+                <div class="question-text" id="questionText">Loading question...</div>
+                <div class="options-container" id="optionsContainer"></div>
+                <button class="btn btn-primary" onclick="submitAnswer()" id="submitButton" style="width: 100%;">✅ Submit Answer</button>
+            </div>
+        </div>
+
+        <div class="dice-popup" id="dicePopup">
+            <div class="dice-popup-content" id="dicePopupContent">🎲</div>
+        </div>
+        
+        <div class="question-popup" id="guidelinePopup">
+            <div class="guideline-card">
+                <button class="guideline-close-btn" onclick="closeGuidelines()">Close</button>
+                <iframe id="guidelineFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+        
+        <div class="question-popup" id="groupSelectionPopup">
+            <div class="question-card">
+                <h2 class="section-title">Select a Question Group</h2>
+                <div id="groupOptionsContainer">
+                    </div>
+                <button class="btn btn-success" onclick="finalizeGameStart()" id="finalizeStartBtn" style="width: 100%; margin-top: 20px;" disabled>Play with Selected Group</button>
+            </div>
+        </div>
+
+        <div class="question-popup" id="setupPromptPopup">
+            <div class="question-card setup-card">
+                <h2 class="section-title popup-title">🙏 Jain Jinendra 🙏</h2>
+
+                <div class="input-group">
+                    <label for="setupNumPlayers">👥 Number of Players (2-6):</label>
+                    <select id="setupNumPlayers">
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4" selected>4 Players</option>
+                        <option value="5">5 Players</option>
+                        <option value="6">6 Players</option>
+                    </select>
+                </div>
+
+                <div id="setupPlayerNamesContainer">
+                    </div>
+
+                <div class="input-group">
+                    <label for="setupTimerDuration">⏱️ Question Timer (seconds):</label>
+                    <select id="setupTimerDuration">
+                        <option value="5">5s</option>
+                        <option value="10">10s</option>
+                        <option value="15" selected>15s</option>
+                        <option value="20">20s</option>
+                        <option value="25">25s</option>
+                        <option value="30">30s</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="startNewGameBtn">🚀 Start New Game</button>
+            </div>
+        </div>
+        <div class="sound-effects" style="display: none;">
+            <audio id="timerTickSoundAudio" src=""></audio>
+            <audio id="diceRollSoundAudio" src=""></audio>
+            <audio id="correctSoundAudio" src=""></audio>
+            <audio id="wrongSoundAudio" src=""></audio>
+            <audio id="moveSoundAudio" src=""></audio>
+            <audio id="snakeSoundAudio" src=""></audio>
+            <audio id="ladderSoundAudio" src=""></audio>
+            <audio id="winSoundAudio" src=""></audio>
+        </div>
+
+<script>
+    // Game Configuration
+    const BOARD_SIZE = 100;
+    const SNAKES = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 63, 95: 55, 99: 18 };
+    const LADDERS = { 1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 80: 96 };
+    
+    const DEFAULT_ASSETS = {
+        logo: 'assets/logo.png',
+        questions: 'assets/questions.csv',
+        sounds: {
+            timerTickSound: 'assets/Timer_Tick.mp3',
+            diceRollSound: 'assets/Dice_Roll.mp3',
+            correctSound: 'assets/Correct_Answer.mp3',
+            wrongSound: 'assets/Wrong_Answer.mp3',
+            moveSound: 'assets/Player_Move.mp3',
+            snakeSound: 'assets/Snake.mp3',
+            ladderSound: 'assets/Ladder.mp3',
+            winSound: 'assets/Win_Game.mp3'
+        }
+    };
+
+    // Game State
+    let gameState = {};
+    let history = [];
+    let historyIndex = -1;
+    const MAX_HISTORY = 10;
+    const MAX_STUCK_TURNS = 4;
+
+    function initializeGameState() {
+        gameState = {
+            players: [],
+            currentPlayerIndex: 0,
+            gameStarted: false,
+            masterQuestions: [],
+            availableQuestions: [],
+            usedQuestions: [],
+            allQuestionGroups: [],
+            selectedQuestionGroup: null,
+            // No need for csvUploaded, logoUploaded, soundsUploaded as we always load defaults
+            timerDuration: 15,
+            winners: [],
+            soundEnabled: true, // Sounds will be enabled by default
+            volume: 0.5, // Default volume
+            currentQuestion: null,
+            selectedOption: -1,
+            questionTimer: null,
+            isSubmitting: false
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        initializeGameState();
+        createBoard();
+        setupVolumeControl();
+        updateHistoryButtons();
+        updateHeaderButtons();
+
+        document.addEventListener('keydown', handleKeyboardShortcuts);
+
+        window.addEventListener('resize', () => {
+            if (gameState.gameStarted) {
+                drawSnakesAndLadders();
+            }
+        });
+
+        // Load default assets and show setup prompt immediately
+        await loadDefaultAssets(); // Load all assets first
+        showSetupPrompt(); // Then display the new setup modal
+    });
+    
+    function updateHeaderButtons() {
+        const gameIsOver = isGameOver();
+        const gameIsInProgress = gameState.gameStarted && !gameIsOver;
+
+        document.getElementById('headerStartBtn').disabled = gameState.gameStarted;
+        document.getElementById('headerEndGameBtn').disabled = !gameIsInProgress;
+    }
+
+    function handleKeyboardShortcuts(event) {
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+            return;
+        }
+
+        if (event.key.toLowerCase() === 'pagedown') {
+            event.preventDefault();
+            document.getElementById('rollButton').click();
+            return;
+        }
+
+        if (event.ctrlKey) {
+            if (event.key.toLowerCase() === 'z') {
+                event.preventDefault();
+                document.getElementById('undoButton').click();
+            }
+            if (event.key.toLowerCase() === 'y') {
+                event.preventDefault();
+                document.getElementById('redoButton').click();
+            }
+        } else if (event.altKey) {
+            event.preventDefault();
+            switch (event.key.toLowerCase()) {
+                case 'd':
+                    document.getElementById('rollButton').click();
+                    break;
+                case 's':
+                    if (document.getElementById('questionPopup').classList.contains('active')) {
+                        document.getElementById('submitButton').click();
+                    }
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    if (document.getElementById('questionPopup').classList.contains('active') && !gameState.isSubmitting) {
+                        const options = document.querySelectorAll('#optionsContainer .option');
+                        const optionIndex = parseInt(event.key) - 1;
+                        if (options[optionIndex]) {
+                            selectOption(optionIndex, options[optionIndex]);
+                            submitAnswer();
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    function deepClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function saveStateToHistory() {
+        if (historyIndex < history.length - 1) {
+            history = history.slice(0, historyIndex + 1);
+        }
+        history.push(deepClone(gameState));
+        if (history.length > MAX_HISTORY) {
+            history.shift();
+        }
+        historyIndex = history.length - 1;
+        updateHistoryButtons();
+    }
+
+    function loadStateFromHistory(index) {
+        if (index >= 0 && index < history.length) {
+            gameState = deepClone(history[index]);
+            historyIndex = index;
+            updateAllUI();
+            updateHistoryButtons();
+        }
+    }
+    
+    function undoStep() {
+        if (historyIndex > 0) {
+            loadStateFromHistory(historyIndex - 1);
+        }
+    }
+
+    function redoStep() {
+        if (historyIndex < history.length - 1) {
+            loadStateFromHistory(historyIndex + 1);
+        }
+    }
+
+    function updateHistoryButtons() {
+        document.getElementById('undoButton').disabled = historyIndex <= 0;
+        document.getElementById('redoButton').disabled = historyIndex >= history.length - 1;
+    }
+
+    function updateAllUI() {
+        updateHeaderButtons();
+        updatePlayersDisplay();
+        updateCurrentPlayerDisplay();
+        updateGameBoard();
+        setTimeout(drawSnakesAndLadders, 50);
+        
+        const gameIsOver = isGameOver();
+        const rollButtonsDisabled = gameIsOver || !gameState.gameStarted;
+        document.getElementById('rollButton').disabled = rollButtonsDisabled;
+        document.getElementById('skipTurnButton').disabled = rollButtonsDisabled;
+        document.getElementById('winnersSection').style.display = gameIsOver ? 'block' : 'none';
+    }
+
+    function isGameOver() {
+        if (!gameState.gameStarted) return false;
+        const nonWinnersCount = gameState.players.length - gameState.winners.length;
+        const maxWinners = Math.min(3, gameState.players.length > 1 ? gameState.players.length - 1 : 1);
+        return (gameState.winners.length >= maxWinners && maxWinners > 0) || (nonWinnersCount <= 1 && gameState.players.length > 1);
+    }
+    
+    function createBoard() {
+        const board = document.getElementById('gameBoard');
+        board.innerHTML = '<svg id="svgLayer" class="svg-layer"></svg>';
+        let cells = [];
+        for (let i = 1; i <= BOARD_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.id = `cell-${i}`;
+            cell.innerHTML = `<span class="cell-number">${i}</span>`;
+            if (SNAKES[i]) {
+                cell.classList.add('snake-start');
+                cell.innerHTML += `<div class="emoji">🐍</div>`;
+            } else if (LADDERS[i]) {
+                cell.classList.add('ladder-start');
+                cell.innerHTML += `<div class="emoji">🪜</div>`;
+            }
+            cells.push(cell);
+        }
+        for (let row = 9; row >= 0; row--) {
+            let rowCells = cells.slice(row * 10, (row + 1) * 10);
+            if (row % 2 !== 0) rowCells.reverse();
+            rowCells.forEach(cell => board.appendChild(cell));
+        }
+    }
+
+    function getCellCoordinates(cellNumber) {
+        const cell = document.getElementById(`cell-${cellNumber}`);
+        if (!cell) {
+            // Fallback for position 0, which doesn't have a cell element
+            const board = document.getElementById('gameBoard');
+            const boardRect = board.getBoundingClientRect();
+            const firstCell = document.getElementById('cell-1');
+            if (firstCell) {
+                const firstCellRect = firstCell.getBoundingClientRect();
+                return {
+                    x: firstCellRect.left - boardRect.left + firstCellRect.width / 2,
+                    y: firstCellRect.top - boardRect.top + firstCellRect.height / 2
+                };
+            }
+            return { x: 0, y: 0 }; // Default if board not ready
+        }
+        const board = document.getElementById('gameBoard');
+        const boardRect = board.getBoundingClientRect();
+        const cellRect = cell.getBoundingClientRect();
+
+        // Calculate center relative to the board
+        const x = cellRect.left - boardRect.left + cellRect.width / 2;
+        const y = cellRect.top - boardRect.top + cellRect.height / 2;
+
+        // Adjust for player element size (approx. half its width/height)
+        const playerSize = 35; // As defined in .player CSS width/height
+        return { x: x - playerSize / 2, y: y - playerSize / 2 };
+    }
+
+    function drawSnakesAndLadders() {
+        const svg = document.getElementById('svgLayer');
+        svg.innerHTML = '';
+        for (const start in LADDERS) {
+            const end = LADDERS[start];
+            const p1 = getCellCenter(start);
+            const p2 = getCellCenter(end);
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            const ladderWidth = 8;
+            const p1_l = { x: p1.x - ladderWidth * Math.sin(angle), y: p1.y + ladderWidth * Math.cos(angle) };
+            const p1_r = { x: p1.x + ladderWidth * Math.sin(angle), y: p1.y - ladderWidth * Math.cos(angle) };
+            const p2_l = { x: p2.x - ladderWidth * Math.sin(angle), y: p2.y + ladderWidth * Math.cos(angle) };
+            const p2_r = { x: p2.x + ladderWidth * Math.sin(angle), y: p2.y - ladderWidth * Math.cos(angle) };
+            svg.innerHTML += `<line x1="${p1_l.x}" y1="${p1_l.y}" x2="${p2_l.x}" y2="${p2_l.y}" class="ladder-side" />`;
+            svg.innerHTML += `<line x1="${p1_r.x}" y1="${p1_r.y}" x2="${p2_r.x}" y2="${p2_r.y}" class="ladder-side" />`;
+            const numRungs = Math.floor(Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2) / 20);
+            for (let i = 1; i <= numRungs; i++) {
+                const rung_p1 = { x: p1_l.x + (p2_l.x - p1_l.x) * i / (numRungs + 1), y: p1_l.y + (p2_l.y - p1_l.y) * i / (numRungs + 1) };
+                const rung_p2 = { x: p1_r.x + (p2_r.x - p1_r.x) * i / (numRungs + 1), y: p1_r.y + (p2_r.y - p1_r.y) * i / (numRungs + 1) };
+                svg.innerHTML += `<line x1="${rung_p1.x}" y1="${rung_p1.y}" x2="${rung_p2.x}" y2="${rung_p2.y}" class="ladder-rung" />`;
+            }
+        }
+        for (const start in SNAKES) {
+            const end = SNAKES[start];
+            const p1 = getCellCenter(start);
+            const p2 = getCellCenter(end);
+            const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+            const dist = Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2);
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            const offset = dist / 4;
+            const control = { x: mid.x + offset * Math.sin(angle), y: mid.y - offset * Math.cos(angle) };
+            
+            const pathData = `M ${p1.x} ${p1.y} Q ${control.x} ${control.y} ${p2.x} ${p2.y}`;
+            svg.innerHTML += `<path d="${pathData}" class="snake-outline" />`;
+            svg.innerHTML += `<path d="${pathData}" class="snake-body" />`;
+        }
+    }
+    
+    function setupVolumeControl() {
+        document.getElementById('volumeSlider').addEventListener('input', function() {
+            gameState.volume = this.value / 100;
+            document.getElementById('volumeIcon').textContent = gameState.volume > 0 ? '🔊' : '🔇';
+            updateSoundVolume();
+        });
+    }
+    
+    // Modified handlePlayerIconUpload to accept a prefix for IDs
+    function handlePlayerIconUpload(event, playerIndex, prefix = '') {
+        const file = event.target.files[0];
+        // Adjust ID to match new setup prompt IDs
+        const label = document.getElementById(`${prefix}Player${playerIndex}IconLabel`);
+        const emojiInput = document.getElementById(`${prefix}Player${playerIndex}IconEmoji`);
+
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                label.textContent = `✅ ${file.name}`;
+                label.style.backgroundColor = '#d4edda';
+                if (emojiInput) emojiInput.value = ''; // Clear emoji input if image is uploaded
+            };
+            reader.readAsDataURL(file);
+        } else {
+            label.textContent = '❌ Invalid file';
+            label.style.backgroundColor = '#f8d7da';
+        }
+    }
+    
+    async function loadDefaultAssets() {
+        // Load Logo
+        try {
+            const response = await fetch(DEFAULT_ASSETS.logo, { method: 'HEAD' });
+            if (response.ok) {
+                const imgSrc = DEFAULT_ASSETS.logo;
+                document.getElementById('gameLogoImg').src = imgSrc;
+                document.getElementById('gameLogoImg').style.display = 'block';
+                document.getElementById('gameLogoImg').parentElement.querySelector('span').style.display = 'none';
+                document.getElementById('boardLogoImg').src = imgSrc;
+                document.getElementById('boardLogoImg').style.display = 'block';
+            }
+        } catch (e) { console.warn("Default logo not found or inaccessible. Skipping logo display."); }
+
+        // Load Questions (Fatal if fails)
+        try {
+            const response = await fetch(DEFAULT_ASSETS.questions);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const csvText = await response.text();
+            parseCSV(csvText);
+        } catch (error) {
+            console.error('Fatal: Could not load default questions.csv. Please ensure "assets/questions.csv" exists and is accessible.', error);
+            alert('Fatal Error: Could not load "assets/questions.csv". The game cannot start without questions. Please ensure the file is present.');
+            return; // Prevent game from starting if questions cannot be loaded
+        }
+
+        // Load Sounds
+        for (const soundId in DEFAULT_ASSETS.sounds) {
+            try {
+                const audioEl = document.getElementById(soundId + 'Audio'); // Corrected ID to target the audio tag
+                if (audioEl) {
+                    const response = await fetch(DEFAULT_ASSETS.sounds[soundId], { method: 'HEAD' });
+                    if (response.ok) {
+                        audioEl.src = DEFAULT_ASSETS.sounds[soundId];
+                    } else {
+                        console.warn(`Default sound for ${soundId} not found or inaccessible. Skipping.`);
+                    }
+                }
+            } catch (e) {
+                console.warn(`Error loading sound for ${soundId}:`, e);
+            }
+        }
+
+        // Set initial volume and enable sounds if controls were visible (now hidden)
+        const volumeControl = document.getElementById('volumeControl');
+        if (volumeControl) {
+            volumeControl.value = gameState.volume * 100; // Convert to 0-100 range for slider
+            // Event listener for volume control is already setup in setupVolumeControl
+        }
+    }
+
+    function parseCsvRow(row) {
+        const parts = [];
+        let currentPart = '';
+        let inQuotes = false;
+        for (let i = 0; i < row.length; i++) {
+            const char = row[i];
+            const nextChar = row[i + 1];
+            
+            if (char === '"' && inQuotes && nextChar === '"') {
+                currentPart += '"';
+                i++;
+            } else if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                parts.push(currentPart);
+                currentPart = '';
+            } else {
+                currentPart += char;
+            }
+        }
+        parts.push(currentPart);
+        return parts;
+    }
+
+    function parseCSV(csv) {
+        try {
+            const lines = csv.split(/[\r\n]+/).filter(line => line.trim() !== '');
+            const questions = [];
+            const groupSet = new Set();
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+
+                const parts = parseCsvRow(lines[i]);
+
+                if (parts.length >= 8) {
+                    const group = (parts[7] || 'general').trim().toLowerCase();
+                    questions.push({
+                        question: parts[0].trim(),
+                        options: [parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim()],
+                        answer: parseInt(parts[5].trim()) - 1,
+                        level: parts[6].trim().toLowerCase(),
+                        group: group
+                    });
+                    if (group) groupSet.add(group);
+                } else {
+                    console.warn(`Skipping malformed CSV row ${i + 1}:`, lines[i]);
+                }
+            }
+
+            if (questions.length > 0) {
+                gameState.masterQuestions = questions;
+                gameState.allQuestionGroups = Array.from(groupSet).sort();
+            } else { throw new Error("Questions CSV file is empty or has no valid question rows."); }
+        } catch (error) {
+            console.error(`Error parsing questions CSV: ${error.message}`);
+            throw error; // Re-throw to be caught by loadDefaultAssets
+        }
+    }
+
+    // --- NEW Helper Functions for Setup Prompt ---
+
+    function showSetupPrompt() {
+        document.getElementById('setupPromptPopup').classList.add('active');
+        // Populate player name inputs based on initial selection (default 4 players)
+        updatePlayerInputsInSetupPrompt(parseInt(document.getElementById('setupNumPlayers').value));
+
+        // Add event listener for number of players dropdown in the setup prompt
+        document.getElementById('setupNumPlayers').addEventListener('change', (e) => {
+            updatePlayerInputsInSetupPrompt(parseInt(e.target.value));
+        });
+
+        // Add event listener for the "Start New Game" button in the prompt
+        document.getElementById('startNewGameBtn').onclick = beginGameSetupFromPrompt;
+    }
+
+    function updatePlayerInputsInSetupPrompt(num) {
+        const container = document.getElementById('setupPlayerNamesContainer');
+        container.innerHTML = ''; // Clear previous inputs
+
+        for (let i = 1; i <= num; i++) {
+            container.innerHTML += `
+                <div class="input-group">
+                    <label for="setupPlayer${i}Name">👤 Player ${i} Name:</label>
+                    <input type="text" id="setupPlayer${i}Name" placeholder="Player ${i}" value="Player ${i}">
+                </div>
+                <div class="input-group">
+                    <label>🖼️ Player ${i} Icon:</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="setupPlayer${i}IconEmoji" class="player-icon-emoji" placeholder="Emoji (e.g., 🔴)" style="flex-grow: 1;">
+                        <span style="color: #7f8c8d;">OR</span>
+                        <div class="file-upload" style="flex-grow: 2;">
+                            <input type="file" id="setupPlayer${i}IconFile" accept="image/*" onchange="handlePlayerIconUpload(event, ${i}, 'setup')" style="display:none;">
+                            <label for="setupPlayer${i}IconFile" class="file-upload-label player-icon-label" id="setupPlayer${i}IconLabel">📁 Upload Image</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Re-add event listeners for emoji input to clear file input and vice versa
+        for (let i = 1; i <= num; i++) {
+            document.getElementById(`setupPlayer${i}IconEmoji`).addEventListener('input', (e) => {
+                if (e.target.value) {
+                    document.getElementById(`setupPlayer${i}IconFile`).value = '';
+                    document.getElementById(`setupPlayer${i}IconLabel`).textContent = '📁 Upload Image';
+                    document.getElementById(`setupPlayer${i}IconLabel`).style.backgroundColor = '#ecf0f1';
+                }
+            });
+        }
+    }
+
+    // --- REPLACE THE EXISTING beginGameSetupFromPrompt FUNCTION WITH THIS ONE ---
+async function beginGameSetupFromPrompt() {
+    // If a game is already in progress, ask for confirmation to start a new one
+    if(gameState.gameStarted && !isGameOver()) {
+        if(!confirm("A game is already in progress. Are you sure you want to start a new one?")) {
+            return;
+        }
+    }
+    
+    // Always re-initialize and load assets for a new game start (even if it's the first one)
+    initializeGameState();
+    await loadDefaultAssets(); // Re-load assets (questions, logo, sounds)
+
+    const numPlayers = parseInt(document.getElementById('setupNumPlayers').value);
+    gameState.players = await Promise.all(Array.from({ length: numPlayers }, async (_, i) => {
+        const playerName = document.getElementById(`setupPlayer${i + 1}Name`).value || `Player ${i + 1}`;
+        const playerIconEmoji = document.getElementById(`setupPlayer${i + 1}IconEmoji`).value;
+        const playerIconFile = document.getElementById(`setupPlayer${i + 1}IconFile`).files[0];
+
+        let iconType = 'initial';
+        let iconValue = playerName.charAt(0).toUpperCase();
+
+        if (playerIconEmoji) {
+            iconType = 'emoji';
+            iconValue = playerIconEmoji;
+        } else if (playerIconFile) {
+            iconType = 'image';
+            iconValue = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(playerIconFile);
+            });
+        }
+
+        return {
+            name: playerName,
+            position: 0,
+            stuckCounter: 0,
+            color: `player-${i + 1}`, // player-1, player-2, etc. for CSS colors
+            iconType: iconType,
+            iconValue: iconValue
+        };
+    }));
+    gameState.timerDuration = parseInt(document.getElementById('setupTimerDuration').value);
+
+    // Hide the setup prompt
+    document.getElementById('setupPromptPopup').classList.remove('active');
+
+    // --- NEW LOGIC FOR QUESTION GROUP SELECTION ---
+    if (gameState.allQuestionGroups.length > 1) {
+        // If multiple groups, show the group selection popup
+        populateAndShowGroupSelector();
+    } else if (gameState.allQuestionGroups.length === 1) {
+        // If only one group, auto-select it and proceed to game start
+        gameState.selectedQuestionGroup = gameState.allQuestionGroups[0];
+        finalizeGameStart(); // Call finalize directly
+    } else {
+        // No groups found, use a 'general' fallback and warn
+        gameState.selectedQuestionGroup = 'general';
+        console.warn("No question groups found in CSV. Using 'general' group.");
+        finalizeGameStart(); // Proceed to game start
+    }
+    // --- END NEW LOGIC ---
+}
+    // --- END NEW Helper Functions ---
+
+    function showGuidelines() {
+        window.open('assets/Game-Guidelines.pdf', '_blank');
+        const popup = document.getElementById('guidelinePopup');
+        const frame = document.getElementById('guidelineFrame');
+        frame.src = 'assets/Game-Guidelines.pdf';
+        popup.classList.add('active');
+    }
+
+    function closeGuidelines() {
+        document.getElementById('guidelinePopup').classList.remove('active');
+    }
+    
+    function populateAndShowGroupSelector() { // This function is now technically unused, as we skip group selection
+        const container = document.getElementById('groupOptionsContainer');
+        container.innerHTML = '';
+        gameState.allQuestionGroups.forEach(group => {
+            const btn = document.createElement('div');
+            btn.className = 'group-option';
+            btn.textContent = group;
+            btn.onclick = () => selectGroup(group, btn);
+            container.appendChild(btn);
+        });
+        document.getElementById('groupSelectionPopup').classList.add('active');
+    }
+
+    function selectGroup(groupName, element) { // This function is now technically unused
+        gameState.selectedQuestionGroup = groupName;
+        document.querySelectorAll('.group-option').forEach(opt => opt.classList.remove('selected'));
+        element.classList.add('selected');
+        document.getElementById('finalizeStartBtn').disabled = false;
+    }
+    
+    // --- REPLACE THE EXISTING finalizeGameStart FUNCTION WITH THIS ONE ---
+function finalizeGameStart() {
+    // If this function is called, it means a group has been selected or auto-selected
+    if (!gameState.selectedQuestionGroup) {
+        // This case should ideally not happen with the new flow, but as a safeguard:
+        alert("Error: A question group was not selected. Cannot start game.");
+        resetGame(); // Go back to fresh start
+        return;
+    }
+    
+    // Hide the group selection popup (if it was shown)
+    document.getElementById('groupSelectionPopup').classList.remove('active');
+    
+    // Filter questions for the selected group
+    gameState.availableQuestions = gameState.masterQuestions.filter(q => q.group === gameState.selectedQuestionGroup);
+    gameState.usedQuestions = [];
+
+    if (gameState.availableQuestions.length === 0) {
+        alert(`Error: No questions found for the selected group "${gameState.selectedQuestionGroup}". Please check your CSV file.`);
+        resetGame(); // Critical error, reset game
+        return;
+    }
+    
+    gameState.gameStarted = true;
+    // document.getElementById('setupSection').classList.remove('active'); // REMOVED: Old setup section is deleted
+    document.getElementById('gameSection').classList.add('active'); // Ensure game section is active
+    
+    // Final setup steps for starting a new game
+    history = [];
+    historyIndex = -1;
+    saveStateToHistory();
+    updateAllUI();
+}
+    
+    function updatePlayersDisplay() {
+        const list = document.getElementById('playersList');
+        list.innerHTML = gameState.players.map(p => {
+            const colors = { 'player-1':'#e74c3c', 'player-2':'#3498db', 'player-3':'#2ecc71', 'player-4':'#f1c40f', 'player-5':'#9b59b6', 'player-6':'#1abc9c'};
+            const positionText = gameState.winners.find(w => w.name === p.name) ? 'Finished' : (p.position || 'Start');
+            return `
+            <div class="player-item">
+                <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background-color:${colors[p.color]};margin-right:10px;"></span>
+                <span>${p.name}</span>
+                <span>Pos: ${positionText}</span>
+            </div>`}).join('');
+    }
+    
+    function updateCurrentPlayerDisplay() {
+        if (gameState.players.length === 0 || isGameOver()) return;
+        const player = gameState.players[gameState.currentPlayerIndex];
+        const display = document.getElementById('currentPlayerDisplay');
+        display.textContent = `${player.name}'s Turn`;
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c'];
+        display.style.background = `linear-gradient(135deg, ${colors[gameState.currentPlayerIndex % colors.length]}, ${colors[(gameState.currentPlayerIndex + 1) % colors.length]})`;
+    }
+
+    function updateGameBoard() {
+        const board = document.getElementById('gameBoard');
+        gameState.players.forEach((player, index) => {
+            let playerEl = document.querySelector(`.player.player-${index + 1}`);
+
+            if (player.position === 0 || gameState.winners.some(w => w.name === player.name)) {
+                // If player is at start (0) or has won, remove their pawn if it exists
+                if (playerEl) {
+                    playerEl.remove();
+                }
+                return; // Don't draw player if at start or won
+            }
+
+            if (!playerEl) {
+                // Create player element if it doesn't exist
+                playerEl = document.createElement('div');
+                playerEl.className = `player player-${index + 1}`; // Add unique class for identification
+                board.appendChild(playerEl); // Append to the board, not a cell
+            }
+
+            // Render player icon/text
+            if (player.iconType === 'image') {
+                if (!playerEl.querySelector('img.avatar')) {
+                    playerEl.innerHTML = ''; // Clear existing content
+                    const img = document.createElement('img');
+                    img.className = 'avatar';
+                    playerEl.appendChild(img);
+                }
+                playerEl.querySelector('img.avatar').src = player.iconValue;
+                playerEl.textContent = ''; // Ensure no text if image
+            } else {
+                // For emoji or initial, display as text content
+                if (playerEl.querySelector('img.avatar')) {
+                    playerEl.querySelector('img.avatar').remove();
+                }
+                playerEl.textContent = player.iconValue;
+                playerEl.style.backgroundImage = 'none'; // Clear any background image
+            }
+
+            // Calculate target position and apply transform
+            const targetCoords = getCellCoordinates(player.position);
+
+            // Adjust for multiple players on the same square
+            let offsetDx = 0;
+            let offsetDy = 0;
+            const playersAtSamePos = gameState.players.filter(
+                p => p.position === player.position && !gameState.winners.some(w => w.name === p.name)
+            );
+            if (playersAtSamePos.length > 1) {
+                const playerIndexAtPos = playersAtSamePos.findIndex(p => p.name === player.name);
+                const offsetAmount = 10; // Increased offset for larger pawns
+                if (playerIndexAtPos === 0) { /* no offset */ }
+                else if (playerIndexAtPos === 1) { offsetDx = offsetAmount; }
+                else if (playerIndexAtPos === 2) { offsetDy = offsetAmount; }
+                else if (playerIndexAtPos === 3) { offsetDx = -offsetAmount; }
+                else if (playerIndexAtPos === 4) { offsetDy = -offsetAmount; }
+                else { offsetDx = offsetAmount; offsetDy = offsetAmount; }
+            }
+
+            playerEl.style.left = `${targetCoords.x + offsetDx}px`;
+            playerEl.style.top = `${targetCoords.y + offsetDy}px`;
+        });
+    }
+
+    function skipTurn() {
+        if (isGameOver() || document.getElementById('rollButton').disabled) return;
+        
+        nextPlayer();
+        updateAllUI();
+        saveStateToHistory();
+    }
+    
+    function rollDice() {
+        if (!gameState.gameStarted || document.getElementById('rollButton').disabled) return;
+        
+        const dicePopup = document.getElementById('dicePopup');
+        const dicePopupContent = document.getElementById('dicePopupContent');
+        const sideBarDice = document.getElementById('dice');
+        const rollButton = document.getElementById('rollButton');
+        const skipTurnButton = document.getElementById('skipTurnButton');
+
+        rollButton.disabled = true;
+        skipTurnButton.disabled = true;
+
+        dicePopup.classList.add('active');
+        dicePopupContent.classList.add('rolling');
+        playSound('diceRollSound');
+
+        const player = gameState.players[gameState.currentPlayerIndex];
+        let forcedRoll = 0;
+        if (player.stuckCounter >= MAX_STUCK_TURNS && player.position > (BOARD_SIZE - 6)) {
+            forcedRoll = BOARD_SIZE - player.position;
+        }
+
+        let rollCount = 0;
+        const rollInterval = setInterval(() => {
+            const randomFace = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][Math.floor(Math.random() * 6)];
+            dicePopupContent.textContent = randomFace;
+            sideBarDice.textContent = randomFace;
+
+            if (++rollCount > 10) {
+                clearInterval(rollInterval);
+                const finalRoll = (forcedRoll > 0) ? forcedRoll : Math.floor(Math.random() * 6) + 1;
+                const finalFace = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'][finalRoll - 1];
+                
+                dicePopupContent.textContent = finalFace;
+                sideBarDice.textContent = finalFace;
+                dicePopupContent.classList.remove('rolling');
+
+                setTimeout(() => {
+                    dicePopup.classList.remove('active');
+                    setTimeout(() => showQuestion(finalRoll), 300);
+                }, 1000);
+            }
+        }, 100);
+    }
+    
+    function showQuestion(diceRoll) {
+        if (gameState.availableQuestions.length === 0) {
+            if (gameState.usedQuestions.length > 0) {
+                console.log("All questions used. Reshuffling the deck.");
+                gameState.availableQuestions = [...gameState.usedQuestions];
+                gameState.usedQuestions = [];
+            } else {
+                alert(`FATAL ERROR: No more questions available for group "${gameState.selectedQuestionGroup}". Game cannot continue.`);
+                forceEndGame();
+                return;
+            }
+        }
+        
+        const level = diceRoll <= 2 ? 'easy' : (diceRoll <= 4 ? 'medium' : 'hard');
+        let pool = gameState.availableQuestions.filter(q => q.level === level);
+
+        if (pool.length === 0) {
+            console.warn(`No questions of level '${level}' available. Picking from any remaining level.`);
+            pool = gameState.availableQuestions;
+        }
+
+        const questionIndexInPool = Math.floor(Math.random() * pool.length);
+        const question = pool[questionIndexInPool];
+        
+        gameState.currentQuestion = question;
+        gameState.selectedOption = -1;
+        
+        document.getElementById('questionPopup').dataset.diceRoll = diceRoll;
+        document.getElementById('questionText').textContent = gameState.currentQuestion.question;
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+        gameState.currentQuestion.options.forEach((opt, i) => {
+            const optEl = document.createElement('div');
+            optEl.className = 'option';
+            optEl.textContent = `${i + 1}. ${opt}`;
+            optEl.onclick = () => selectOption(i, optEl);
+            optionsContainer.appendChild(optEl);
+        });
+        document.getElementById('questionPopup').classList.add('active');
+        startQuestionTimer();
+    }
+
+    function startQuestionTimer() {
+        let timeLeft = gameState.timerDuration;
+        const timerEl = document.getElementById('questionTimer');
+        timerEl.classList.remove('warning');
+        clearInterval(gameState.questionTimer);
+        gameState.questionTimer = setInterval(() => {
+            timerEl.textContent = timeLeft;
+            playSound('timerTickSound');
+            if (timeLeft <= 5 && !timerEl.classList.contains('warning')) timerEl.classList.add('warning');
+            if (--timeLeft < 0) {
+                clearInterval(gameState.questionTimer);
+                submitAnswer();
+            }
+        }, 1000);
+    }
+
+    function selectOption(index, el) {
+        if (gameState.isSubmitting) return;    
+        document.querySelectorAll('.option.selected').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        gameState.selectedOption = index;
+    }
+
+    function submitAnswer() {
+        if (gameState.isSubmitting) return;
+        gameState.isSubmitting = true;
+
+        const timerTickAudio = document.getElementById('timerTickSoundAudio'); // Corrected ID
+        if (timerTickAudio) {
+            timerTickAudio.pause();
+            timerTickAudio.currentTime = 0;
+        }
+
+        clearInterval(gameState.questionTimer);
+        const isCorrect = gameState.selectedOption === gameState.currentQuestion.answer;
+        const diceRoll = parseInt(document.getElementById('questionPopup').dataset.diceRoll, 10);
+        
+        const questionIndex = gameState.availableQuestions.findIndex(q => q.question === gameState.currentQuestion.question);
+        if (questionIndex > -1) {
+            const [usedQuestion] = gameState.availableQuestions.splice(questionIndex, 1);
+            gameState.usedQuestions.push(usedQuestion);
+        }
+
+        document.querySelectorAll('.option').forEach((opt, i) => {
+            if (i === gameState.currentQuestion.answer) opt.classList.add('correct');
+            else if (i === gameState.selectedOption) opt.classList.add('wrong');
+        });
+
+        setTimeout(() => {
+            document.getElementById('questionPopup').classList.remove('active');
+            if (isCorrect) playSound('correctSound');
+            else playSound('wrongSound');
+            handleMove(diceRoll, isCorrect);
+            gameState.isSubmitting = false;    
+        }, 2000);
+    }
+    
+    function finishTurn() {
+        updateAllUI();
+        if (isGameOver()) {
+                endGame();
+        } else {
+            nextPlayer();
+            if (!isGameOver()) {
+                document.getElementById('rollButton').disabled = false;
+                document.getElementById('skipTurnButton').disabled = false;
+            }
+            saveStateToHistory();
+        }
+    }
+
+    function handleMove(steps, isCorrect) {
+        const player = gameState.players[gameState.currentPlayerIndex];
+        const playerEl = document.querySelector(`.player.player-${gameState.currentPlayerIndex + 1}`);
+        const oldPosition = player.position;
+        const path = [];
+        let currentPos = oldPosition;
+
+        // Disable dice and skip buttons during movement
+        document.getElementById('rollButton').disabled = true;
+        document.getElementById('skipTurnButton').disabled = true;
+
+        // Determine the path cell by cell
+        if (isCorrect) {
+            for (let i = 1; i <= steps; i++) {
+                const nextPos = oldPosition + i;
+                if (nextPos <= BOARD_SIZE) {
+                    path.push(nextPos);
+                } else {
+                    // If moving beyond BOARD_SIZE, just add current cell and stop.
+                    // The stuck logic will handle remaining turns.
+                    break;
+                }
+            }
+        } else {
+            // If wrong answer, player doesn't move, but we need to check for snake if they land on one.
+            // We simulate a "move" to the potential position to check for snakes.
+            const potentialPosition = oldPosition + steps;
+            if (SNAKES[potentialPosition] && potentialPosition <= BOARD_SIZE) {
+                path.push(potentialPosition); // Only move to the snake head
+            }
+        }
+
+        // Function to animate step by step
+        const animateStep = (index) => {
+            if (index < path.length) {
+                currentPos = path[index];
+                player.position = currentPos; // Update player's internal position
+                updateGameBoard(); // Redraw player at new position
+
+                playSound('moveSound'); // Play move sound for each step if desired, or once for the whole movement
+
+                // Recursively call for the next step after a delay
+                setTimeout(() => animateStep(index + 1), 200); // Adjust delay for speed of step-by-step movement
+            } else {
+                // All steps moved, now check for snakes/ladders or finish turn
+                handlePostMoveEffects(player, oldPosition, isCorrect, steps);
+            }
+        };
+
+        if (path.length > 0) {
+            animateStep(0); // Start animation from the first step
+        } else {
+            // No movement needed (e.g., wrong answer but no snake, or moved past 100)
+            handlePostMoveEffects(player, oldPosition, isCorrect, steps);
+        }
+    }
+
+    // Add this new helper function somewhere near `handleMove`
+    function handlePostMoveEffects(player, oldPosition, isCorrect, steps) {
+        let finalPosition = player.position;
+        let effectOccurred = false;
+
+        // Check for Snake/Ladder only if player moved successfully or landed on potential snake
+        if (isCorrect) {
+            if (LADDERS[finalPosition]) {
+                player.position = LADDERS[finalPosition];
+                playSound('ladderSound');
+                effectOccurred = true;
+            } else if (SNAKES[finalPosition]) {
+                player.position = SNAKES[finalPosition];
+                playSound('snakeSound');
+                effectOccurred = true;
+            }
+        } else { // Wrong answer logic
+            const potentialPosition = oldPosition + steps;
+            if (SNAKES[potentialPosition] && potentialPosition <= BOARD_SIZE) {
+                player.position = SNAKES[potentialPosition];
+                playSound('snakeSound');
+                effectOccurred = true;
+            }
+            // If wrong answer and no snake, player stays put (oldPosition == finalPosition)
+            // and just loses turn.
+        }
+
+        if (isCorrect && player.position > BOARD_SIZE) {
+            // This case handles when an answer is correct but the roll goes past 100
+            player.stuckCounter++;
+            player.position = oldPosition; // Player remains at previous position
+            updateGameBoard(); // Ensure player pawn visually stays in place
+            finishTurn();
+            return;
+        }
+
+        if (player.position === 100 && !gameState.winners.some(w => w.name === player.name)) {
+            gameState.winners.push(player);
+            playSound('winSound');
+            effectOccurred = true;
+        }
+
+        if (effectOccurred) {
+            updateGameBoard(); // Redraw pawn at new snake/ladder position
+            setTimeout(() => {
+                player.stuckCounter = 0; // Reset stuck counter only if a move or effect happened
+                finishTurn();
+            }, 600); // Delay for snake/ladder animation
+        } else {
+            // No snake/ladder/win effect, just finish turn immediately
+            player.stuckCounter = isCorrect ? 0 : player.stuckCounter + 1; // Increment stuck if wrong, reset if correct move happened
+            finishTurn();
+        }
+    }
+    
+    function nextPlayer() {
+        do {
+            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+        } while (gameState.winners.some(p => p.name === gameState.players[gameState.currentPlayerIndex].name) && !isGameOver());
+        
+        updateCurrentPlayerDisplay();
+    }
+    
+    function endGame() {
+        const list = document.getElementById('winnersList');
+        const remainingPlayers = gameState.players
+            .filter(p => !gameState.winners.some(w => w.name === p.name))
+            .sort((a, b) => b.position - a.position);
+        const finalRanking = [...gameState.winners, ...remainingPlayers];
+
+        list.innerHTML = finalRanking.map((p, i) => {
+            const rankText = ['🥇', '🥈', '🥉'][i] || `${i + 1}.`;
+            return `<div class="winner-item"><span>${rankText} ${p.name}</span></div>`;
+        }).join('');
+        
+        document.getElementById('winnersSection').style.display = 'block';
+        document.getElementById('rollButton').disabled = true;
+        document.getElementById('skipTurnButton').disabled = true;
+        document.getElementById('currentPlayerDisplay').textContent = "Game Over!";
+        updateHeaderButtons();
+        saveStateToHistory();    
+    }
+    
+    function forceEndGame() {
+        if (!gameState.gameStarted || isGameOver()) return;
+        if (confirm('Are you sure you want to end the game and declare winners now?')) {
+            endGame();
+        }
+    }
+    
+    function resetGame() {
+        initializeGameState(); // Reset game state
+
+        // Reset logo display (if it was customized, put default back)
+        const headerImg = document.getElementById('gameLogoImg');
+        if (headerImg) {
+            headerImg.src = DEFAULT_ASSETS.logo; // Set back to default logo
+            headerImg.style.display = 'block';
+            const spanEl = headerImg.parentElement.querySelector('span');
+            if (spanEl) spanEl.style.display = 'none'; // Hide default dice/emoji
+        }
+        const boardImg = document.getElementById('boardLogoImg');
+        if (boardImg) {
+            boardImg.src = DEFAULT_ASSETS.logo; // Set back to default board logo
+            boardImg.style.display = 'block';
+        }
+
+        // Hide game section, winners section, and reset dice display
+        document.getElementById('gameSection').classList.remove('active');
+        document.getElementById('winnersSection').style.display = 'none';
+        document.getElementById('dice').textContent = '🎲';
+        document.getElementById('rollButton').disabled = false;
+        document.getElementById('skipTurnButton').disabled = false;
+        document.getElementById('svgLayer').innerHTML = '';
+        
+        // Clear the board of players
+        document.querySelectorAll('.player').forEach(p => p.remove());
+
+        history = []; // Clear history
+        historyIndex = -1;
+        updateHistoryButtons();
+        updateHeaderButtons();
+        createBoard(); // Re-draw board visuals (snakes/ladders)
+
+        // Load default assets again (questions etc.) and show the setup prompt
+        // This will also load default sounds again
+        loadDefaultAssets().then(() => { // Ensure assets are loaded before showing prompt
+            showSetupPrompt();
+        });
+    }
+    
+    function playSound(soundId) {
+        if (gameState.soundEnabled) {
+            const audio = document.getElementById(soundId + 'Audio'); // Corrected ID here
+            if (audio && audio.src) {
+                audio.volume = gameState.volume;
+                audio.currentTime = 0;
+                audio.play().catch(e => {
+                    // Autoplay restrictions are common.
+                    // console.warn(`Autoplay prevented for ${soundId}:`, e);
+                });
+            }
+        }
+    }
+    
+    function updateSoundVolume() {
+        // Iterate through all default sounds and update their volume
+        for (const soundKey in DEFAULT_ASSETS.sounds) {
+            const audio = document.getElementById(soundKey + 'Audio');
+            if (audio) {
+                audio.volume = gameState.volume;
+            }
+        }
+    }
+    
+    function toggleFullscreen() {
+        const el = document.getElementById('gameContainer');
+        if (!document.fullscreenElement) el.requestFullscreen().catch(err => console.error(err));
+        else document.exitFullscreen();
+    }
+    
+    document.addEventListener('fullscreenchange', () => {
+        const btn = document.getElementById('headerFullscreenBtn');
+        btn.textContent = document.fullscreenElement ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
+    });
+
+</script>
+
+</body>
+</html>
