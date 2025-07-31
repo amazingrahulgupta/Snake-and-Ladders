@@ -5,78 +5,220 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jain Pathshala Snake and Ladders</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Roboto:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Roboto:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
         :root {
-            --snake-color: #2ecc71;
-            --ladder-color: #27ae60;
+            --primary-gradient-start: #667eea;
+            --primary-gradient-end: #764ba2;
+            --secondary-gradient-start: #9a4ef3;
+            --secondary-gradient-end: #8b3cff;
+            --accent-color-green: #2ecc71;
+            --accent-color-red: #e74c3c;
+            --accent-color-blue: #3498db;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --border-color-light: rgba(255, 255, 255, 0.3);
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.2);
+            --shadow-dark: 0 10px 30px rgba(0, 0, 0, 0.3);
             --button-disabled-bg: #95a5a6;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Roboto', 'Noto Sans Devanagari', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            color: var(--text-dark);
+            overflow: hidden;
         }
-        
+
+        /* Fullscreen Container */
         .fullscreen-container {
             width: 100vw;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
             overflow: hidden;
             position: relative;
         }
-        
+
+        /* Header */
         .header {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 0px 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 10px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid var(--border-color-light);
+            box-shadow: var(--shadow-light);
             z-index: 100;
         }
-        
-        .game-title { display: flex; align-items: center; gap: 15px; }
-        .logo-container { width: 160px; height: 160px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; cursor: default; transition: all 0.3s ease; overflow: hidden; }
-        .logo-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; }
-        .title-text { color: white; font-size: 2.2em; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: flex-end;}
-        .volume-control { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 25px; }
-        .volume-slider { width: 80px; }
-        
-        .header-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-size: 1em; transition: all 0.3s ease; }
-        .header-btn:hover:not(:disabled) { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .header-btn:disabled { background: var(--button-disabled-bg); cursor: not-allowed; opacity: 0.6; transform: none !important; }
-        
-        .main-container { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; }
-        .game-board-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        
-        .board-logo-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+
+        .game-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-container {
             width: 120px;
             height: 120px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: var(--text-light);
+            cursor: default;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .title-text {
+            font-family: 'Dancing Script', cursive;
+            color: var(--text-light);
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 15px;
+            border-radius: 25px;
+            color: var(--text-light);
+        }
+
+        .volume-slider {
+            width: 70px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.4);
+            outline: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--text-light);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--text-light);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-btn:disabled {
+            background: var(--button-disabled-bg);
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Main Content Area */
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 25px;
+            gap: 25px;
+            overflow: hidden;
+        }
+
+        .game-board-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .board-logo-container {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 15px;
-            padding: 10px;
-            backdrop-filter: blur(5px);
+            padding: 8px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-light);
             z-index: 50;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .board-logo-img {
             max-width: 100%;
             max-height: 100%;
@@ -85,314 +227,585 @@
         }
 
         .game-board {
-            width: min(70vh, 80vw);
-            height: min(70vh, 80vw);
-            background: linear-gradient(45deg, #f0f8ff, #e6f3ff);
-            border: 8px solid #2c3e50;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: min(75vh, 85vw);
+            height: min(75vh, 85vw);
+            background: linear-gradient(160deg, #f0f8ff, #e6f3ff);
+            border: 10px solid var(--text-dark);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
             display: grid;
             grid-template-columns: repeat(10, 1fr);
             grid-template-rows: repeat(10, 1fr);
-            gap: 2px;
-            padding: 10px;
+            gap: 3px;
+            padding: 15px;
             position: relative;
         }
-        
-        .cell { background: linear-gradient(135deg, #ffffff, #f8f9fa); border: 2px solid #34495e; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.8em, 2vw, 1.2em); color: #2c3e50; position: relative; transition: all 0.3s ease; }
-        .cell .emoji { font-size: 1.8em; position: absolute; z-index: 2; }
-        .cell-number { position: absolute; top: 2px; left: 4px; font-size: 0.7em; color: #7f8c8d; }
-        
-        .snake-start { background: #d9f7e6; }
-        .ladder-start { background: #d4edda; }
 
-        .player {
-            position: absolute;
-            width: 35px; /* Increased size for better visibility of icon/name */
-            height: 35px; /* Increased size */
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.8); /* Slightly thicker border */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4); /* Enhanced shadow */
-            font-size: 1em; /* Adjusted font size for single initial */
+        /* Cells */
+        .cell {
+            background: linear-gradient(135deg, #fdfdfd, #f2f2f2);
+            border: 1px solid #c7d2d8;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: clamp(0.9em, 1.8vw, 1.1em);
+            color: var(--text-dark);
+            position: relative;
+            transition: all 0.2s ease-out;
+            overflow: hidden;
+        }
+        .cell:hover {
+            transform: scale(1.02);
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell .emoji {
+            font-size: 2em;
+            position: absolute;
+            z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            font-size: 0.75em;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .snake-start { background: linear-gradient(135deg, #e0ffe0, #d0f7d0); }
+        .ladder-start { background: linear-gradient(135deg, #ffe0b2, #ffd9a3); }
+
+
+        /* Player Pawns */
+        .player {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.3);
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
             color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-            transition: all 0.5s ease;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 10;
             animation: pulse 2s infinite;
-            /* Added properties for avatar/initial display */
-            overflow: hidden; /* Important for containing images */
-            background-size: cover; /* For background images */
-            background-position: center; /* For background images */
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
         }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.5); }
+        }
+
         .player img.avatar {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%; /* Ensure image is circular */
-            display: block; /* Remove any default inline spacing */
+            border-radius: 50%;
+            display: block;
         }
 
         .player-1 { background: #e74c3c; } .player-2 { background: #3498db; } .player-3 { background: #2ecc71; } .player-4 { background: #f1c40f; } .player-5 { background: #9b59b6; } .player-6 { background: #1abc9c; }
         
-        .side-panel { width: 350px; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow-y: auto; }
-        
-        .setup-section, .game-section { display: none; } /* .setup-section is now unused HTML */
-        .game-section.active { display: block; }
-        .section-title { font-size: 1.5em; font-weight: 700; color: #2c3e50; text-align: center; margin-bottom: 15px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #34495e; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; font-size: 1em; transition: all 0.3s ease; }
-        .input-group input:focus, .input-group select:focus { outline: none; border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
-        .file-upload { position: relative; display: inline-block; width: 100%; }
-        .file-upload input[type=file] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        .file-upload-label { display: block; padding: 12px; background: #ecf0f1; border: 2px dashed #bdc3c7; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
-        .file-upload-label:hover { background: #d5dbdb; border-color: #95a5a6; }
-        
-        .sound-upload-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .sound-upload-group label { font-weight: normal; flex-basis: 40%; }
-        .sound-upload-label { padding: 5px 10px; background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 5px; cursor: pointer; text-align: center; flex-basis: 55%; font-size: 0.9em; }
-        .sound-upload-label:hover { background: #e0e0e0; }
+        .side-panel {
+            width: 380px;
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: var(--shadow-dark);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
 
-        .btn { padding: 12px 25px; border: none; border-radius: 25px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
-        .btn:disabled { background: var(--button-disabled-bg); box-shadow: none !important; transform: none !important; cursor: not-allowed; opacity: 0.6; }
-        
-        .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
-        .btn-primary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4); }
-        .btn-secondary { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; }
-        .btn-secondary:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(127, 140, 141, 0.4); }
-        .btn-success { background: linear-gradient(135deg, var(--ladder-color), #229954); color: white; }
-        .btn-success:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); }
-        
-        .dice-container { text-align: center; margin-bottom: 20px; }
-        .dice { width: 80px; height: 80px; background: white; border: 3px solid #2c3e50; border-radius: 15px; display: inline-flex; align-items: center; justify-content: center; font-size: 2.5em; font-weight: bold; color: #2c3e50; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .dice:hover { transform: scale(1.1) rotate(5deg); }
-        
-        .current-player { text-align: center; padding: 15px; background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 15px; font-size: 1.2em; font-weight: 600; margin-bottom: 15px; transition: background 0.5s ease; }
-        
-        .players-list { background: #ecf0f1; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .player-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #bdc3c7; }
-        .player-item:last-child { border-bottom: none; }
-        
-        .question-popup {
-            position: fixed;
+        .setup-section, .game-section { display: none; }
+        .game-section.active { display: block; }
+
+        .section-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.05em;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d2dce4;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-color-blue);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: #ffffff;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            background: #e9ecef;
+            border: 2px dashed #b0c4d4;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .file-upload-label:hover {
+            background: #dce3e7;
+            border-color: #8fa1af;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease-in-out;
+        }
+
+        .btn:hover:not(:disabled):before {
+            left: 100%;
+        }
+
+        .btn:disabled {
+            background: var(--button-disabled-bg);
+            box-shadow: none !important;
+            transform: none !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-gradient-start), var(--secondary-gradient-end));
+            color: white;
+        }
+
+        .btn-primary:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 60, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #7f8c8d, #6c7a89);
+            color: white;
+        }
+
+        .btn-secondary:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 122, 137, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-color-green), #229954);
+            color: white;
+        }
+
+        .btn-success:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+        }
+
+        /* Dice and Player Status */
+        .dice-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .dice {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border: 4px solid var(--text-dark);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .dice:hover {
+            transform: scale(1.15) rotate(8deg);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .current-player {
+            text-align: center;
+            padding: 18px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-radius: 18px;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            transition: background 0.5s ease;
+            box-shadow: var(--shadow-light);
+        }
+
+        .players-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e6eb;
+            font-size: 1.05em;
+            color: #444;
+        }
+
+        .player-item:last-child {
+            border-bottom: none;
+        }
+
+        .winners-section {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: var(--shadow-dark);
+        }
+
+        .winner-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .winner-item:last-child {
+            border-bottom: none;
+        }
+
+        /* SVG for Snakes and Ladders */
+        .svg-layer {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s 0.3s;
             pointer-events: none;
+            z-index: 1;
         }
-        .question-popup.active {
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease;
-            pointer-events: all;
-        }
-        
-        .question-card { background: white; border-radius: 20px; padding: 60px; max-width: 850px; width: 90vw; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transform: scale(0.8); transition: transform 0.3s ease; }
-        .question-popup.active .question-card { transform: scale(1); }
-        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .timer { background: #e74c3c; color: white; padding: 10px 15px; border-radius: 25px; font-weight: bold; font-size: 1.2em; }
-        .timer.warning { background: #f39c12; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.5; } }
-        .question-text { font-size: 2.4em; font-weight: 800; margin-bottom: 30px; text-align: center; color: #2c3e50; line-height: 1.4; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .option { padding: 25px; border: 2px solid #bdc3c7; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-align: center; font-weight: 800; font-size: 2.1em; }
-        .option:hover { border-color: #3498db; background: #ecf0f1; transform: translateY(-2px); }
-        .option.selected { background: #3498db; color: white; border-color: #2980b9; }
-        .option.correct { background: var(--ladder-color); color: white; border-color: #229954; }
-        .option.wrong { background: #e74c3c; color: white; border-color: #c0392b; }
-        .winners-section { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 20px; border-radius: 15px; text-align: center; }
-        .winner-item { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.3); font-size: 1.1em; }
-        .winner-item:last-child { border-bottom: none; }
-        
-        .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        
+
         .snake-outline, .snake-body {
             stroke-linecap: round;
             fill: none;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+            filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.4));
         }
+
         .snake-outline {
             stroke: #2c3e50;
-            stroke-width: 10px;
+            stroke-width: 12px;
         }
+
         .snake-body {
-            stroke: var(--snake-color);
-            stroke-width: 6px;
+            stroke: var(--accent-color-green);
+            stroke-width: 8px;
         }
 
-        .ladder-side { stroke: #8B4513; stroke-width: 8px; stroke-linecap: round; opacity: 0.9; }
-        .ladder-rung { stroke: #AF601A; stroke-width: 6px; stroke-linecap: round; opacity: 0.9; }
-        
-        .developer-credit { text-align: center; font-size: 0.8em; color: #7f8c8d; }
-        .side-panel-footer { margin-top: auto; padding-top: 15px; }
-        .history-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-        .history-controls .btn { padding: 10px 15px; flex-grow: 1; }
+        .ladder-side {
+            stroke: #8B4513;
+            stroke-width: 10px;
+            stroke-linecap: round;
+            opacity: 0.95;
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+        }
 
-        .dice-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
+        .ladder-rung {
+            stroke: #AF601A;
+            stroke-width: 7px;
+            stroke-linecap: round;
+            opacity: 0.95;
+        }
+
+        /* Developer Credit / Footer */
+        .developer-credit {
+            text-align: center;
+            font-size: 0.85em;
+            color: #9ab4c7;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .side-panel-footer {
+            margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px solid #e0e6eb;
+        }
+
+        .history-controls {
             display: flex;
-            align-items: center;
+            gap: 12px;
             justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s 0.3s;
-            pointer-events: none;
+            margin-bottom: 15px;
         }
-        .dice-popup.active {
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease;
-            pointer-events: all;
+
+        .history-controls .btn {
+            padding: 10px 18px;
+            flex-grow: 1;
+            font-size: 0.9em;
         }
+
+        /* Question Popup */
+        .question-popup {
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 65px;
+            max-width: 900px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .question-header h3 {
+            font-size: 1.8em;
+            color: var(--text-dark);
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .timer {
+            background: var(--accent-color-red);
+            padding: 12px 18px;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 1.3em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-size: 2.6em;
+            font-weight: 800;
+            margin-bottom: 35px;
+            color: var(--text-dark);
+            line-height: 1.3;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .option {
+            padding: 28px;
+            border: 2px solid #c7d2d8;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 700;
+            font-size: 2.2em;
+            background-color: #fcfcfc;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .option:hover {
+            border-color: var(--accent-color-blue);
+            background: #eef5f8;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .option.selected {
+            background: var(--accent-color-blue);
+            color: white;
+            border-color: #2980b9;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.5);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, var(--accent-color-green), #229954);
+            color: white;
+            border-color: #1a7d4a;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.5);
+        }
+
+        .option.wrong {
+            background: linear-gradient(135deg, var(--accent-color-red), #c0392b);
+            color: white;
+            border-color: #8b2c21;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5);
+        }
+
+        /* Dice Popup */
         .dice-popup-content {
-            width: 550px;
-            height: 550px;
-            background: white;
-            border: 5px solid #2c3e50;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 25em;
-            font-weight: bold;
-            color: #2c3e50;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
+            width: 600px;
+            height: 600px;
+            border: 8px solid var(--text-dark);
+            border-radius: 60px;
+            font-size: 28em;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
         }
-        .dice-popup.active .dice-popup-content {
-            transform: scale(1);
-        }
-        .dice-popup-content.rolling {
-            animation: roll 0.5s infinite linear;
-        }
-        @keyframes roll { from { transform: rotate(0deg) scale(1.1); } to { transform: rotate(360deg) scale(1.1); } }
 
+        /* Guidelines Card */
         .guideline-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            padding-top: 80px;
-            max-width: 90vw;
-            width: 1000px;
-            height: 90vh;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .question-popup.active .guideline-card {
-             transform: scale(1);
+            padding: 30px;
+            padding-top: 90px;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
         }
 
         .guideline-close-btn {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            background: var(--ladder-color);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        .guideline-close-btn:hover {
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--accent-color-green), #229954);
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 30px;
             box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
         }
 
-        #guidelineFrame {
-            flex-grow: 1;
-            border-radius: 10px;
+        .guideline-close-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.6);
         }
 
-        #groupOptionsContainer {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            max-height: 40vh;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .group-option {
-            padding: 20px;
-            border: 2px solid #bdc3c7;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.2em;
-            text-transform: capitalize;
-        }
-        .group-option:hover {
-            border-color: #3498db;
-            background: #ecf0f1;
-            transform: translateY(-2px);
-        }
+        /* Group Selection Popup */
         .group-option.selected {
-            background: #3498db;
+            background: linear-gradient(135deg, var(--accent-color-blue), #2980b9);
             color: white;
             border-color: #2980b9;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3); /* Add subtle shadow */
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
 
-        /* --- NEW CSS for Setup Prompt Popup --- */
+        /* Custom Scrollbar for overflow elements */
+        ::-webkit-scrollbar {
+            width: 8px;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* NEW CSS for Setup Prompt Popup */
         .setup-card {
-            background: linear-gradient(145deg, #ffffff, #f0f8ff); /* Softer, inviting background */
-            border: 5px solid #a8dadc; /* A calming border color */
-            padding: 40px; /* Adjust padding for aesthetics */
-            max-width: 900px; /* Wider card */
+            background: linear-gradient(145deg, #ffffff, #f0f8ff);
+            border: 5px solid #a8dadc;
+            padding: 40px;
+            max-width: 900px;
             width: 90vw;
             text-align: center;
             position: relative;
-            overflow-y: auto; /* Allow scrolling if content is too tall */
-            max-height: 90vh; /* Limit height to viewport */
-            display: flex; /* Use flexbox for internal layout */
+            overflow-y: auto;
+            max-height: 90vh;
+            display: flex;
             flex-direction: column;
-            gap: 15px; /* Space between input groups */
+            gap: 15px;
         }
 
-        .setup-card .section-title.popup-title { /* More specific selector */
-            font-size: 2.5em; /* Larger, more impactful title */
+        .setup-card .section-title.popup-title {
+            font-size: 2.5em;
             color: #2c3e50;
             margin-bottom: 25px;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
         }
 
         .setup-card .input-group label {
-            font-size: 1.1em; /* Slightly larger labels */
+            font-size: 1.1em;
             color: #34495e;
             font-weight: 700;
         }
@@ -401,24 +814,26 @@
         .setup-card .input-group select {
             background: #ecf0f1;
             border: 1px solid #bdc3c7;
-            border-radius: 10px; /* Slightly more rounded inputs */
-            padding: 15px; /* More padding */
+            border-radius: 10px;
+            padding: 15px;
             font-size: 1.1em;
+            transition: all 0.3s ease;
         }
 
         .setup-card .input-group input[type="text"]:focus,
         .setup-card .input-group select:focus {
-            outline: none; /* Remove default focus outline */
-            border-color: #45a29e; /* Highlight color for focus */
+            outline: none;
+            border-color: #45a29e;
             box-shadow: 0 0 10px rgba(69, 162, 158, 0.4);
+            background-color: #ffffff;
         }
 
         .setup-card #startNewGameBtn {
-            margin-top: 30px; /* More space above the button */
-            padding: 18px 35px; /* Larger button */
-            font-size: 1.2em; /* Larger font */
+            margin-top: 30px;
+            padding: 18px 35px;
+            font-size: 1.2em;
             border-radius: 30px;
-            background: linear-gradient(135deg, #4CAF50, #2E8B57); /* Greenish primary button */
+            background: linear-gradient(135deg, #4CAF50, #2E8B57);
             box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
         }
 
@@ -430,40 +845,91 @@
 
         /* Specific styling for player name/icon inputs within the setup modal */
         #setupPlayerNamesContainer .input-group {
-            margin-bottom: 10px; /* Tighter spacing for player inputs */
+            margin-bottom: 10px;
         }
 
         #setupPlayerNamesContainer .player-icon-emoji {
-            max-width: 100px; /* Limit emoji input width for better alignment */
-            flex-shrink: 0; /* Prevent it from shrinking */
+            max-width: 100px;
+            flex-shrink: 0;
         }
 
         #setupPlayerNamesContainer .file-upload {
-            flex-grow: 1; /* Allow file upload label to take remaining space */
+            flex-grow: 1;
         }
 
-        #setupPlayerNamesContainer .file-upload-label {
+        .setup-card #setupPlayerNamesContainer .file-upload-label {
             padding: 8px 12px;
             font-size: 0.9em;
-            min-width: 120px; /* Ensure minimum width for upload label */
-            text-align: center; /* Center text in label */
+            min-width: 120px;
+            text-align: center;
         }
 
+        /* Responsive Adjustments (Enhanced) */
         @media (max-width: 1200px) {
+            .logo-container { width: 100px; height: 100px; font-size: 2em; }
+            .title-text { font-size: 2.2em; }
+            .header { padding: 8px 20px; }
+            .controls { gap: 10px; }
+            .header-btn { padding: 8px 15px; font-size: 0.9em; }
             .board-logo-container { display: none; }
+            .main-container { padding: 15px; gap: 15px; }
+            .side-panel { width: 320px; padding: 20px; }
+            .game-board { width: min(65vh, 75vw); height: min(65vh, 75vw); padding: 10px; border-width: 8px; }
+            .player { width: 32px; height: 32px; font-size: 0.9em; }
+            .dice { width: 70px; height: 70px; font-size: 2.2em; }
+            .question-card { padding: 50px; }
+            .question-text { font-size: 2em; }
+            .option { padding: 20px; font-size: 1.8em; }
+            .dice-popup-content { width: 450px; height: 450px; font-size: 20em; }
         }
+
         @media (max-width: 768px) {
             .main-container { flex-direction: column; padding: 10px; }
-            .side-panel { width: 100%; height: auto; max-height: 45vh; order: 1; }
-            .game-board-container { order: 2; }
-            .header { order: 0; padding: 10px 15px; }
-            .title-text { font-size: 1.5em; }
-            /* Adjust setup card for smaller screens */
-            .setup-card { padding: 20px; gap: 10px; }
+            .side-panel { width: 100%; height: auto; max-height: 40vh; order: 2; }
+            .game-board-container { order: 1; margin-bottom: 15px; }
+            .header { order: 0; padding: 5px 10px; flex-wrap: wrap; justify-content: center; }
+            .game-title { gap: 10px; margin-bottom: 10px; }
+            .logo-container { width: 80px; height: 80px; font-size: 1.5em; }
+            .title-text { font-size: 1.8em; text-align: center; width: 100%; }
+            .controls { justify-content: center; width: 100%; }
+            .volume-control { margin-bottom: 5px; }
+            .header-btn { padding: 7px 12px; font-size: 0.85em; margin: 3px; }
+
+            .game-board { width: min(90vw, 500px); height: min(90vw, 500px); padding: 8px; border-width: 6px; gap: 1px; margin: 0 auto; }
+            .cell-number { font-size: 0.6em; top: 2px; left: 2px; }
+            .cell .emoji { font-size: 1.5em; }
+            .player { width: 28px; height: 28px; font-size: 0.8em; border-width: 2px; }
+            .player-item { font-size: 0.95em; padding: 6px 0; }
+            .dice { width: 60px; height: 60px; font-size: 2em; margin-bottom: 10px; }
+            .current-player { font-size: 1em; padding: 12px; margin-bottom: 12px; }
+            .roll-buttons { flex-direction: column; gap: 8px; }
+            .btn { padding: 10px 18px; font-size: 0.9em; }
+
+            .question-card { padding: 30px; max-width: 95vw; }
+            .question-header { flex-direction: column; align-items: center; gap: 10px; margin-bottom: 15px; }
+            .question-header h3 { font-size: 1.5em; }
+            .timer { font-size: 1em; padding: 8px 12px; }
+            .question-text { font-size: 1.5em; margin-bottom: 20px; }
+            .options-container { grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+            .option { padding: 15px; font-size: 1.3em; border-radius: 10px; }
+            .dice-popup-content { width: 300px; height: 300px; font-size: 12em; border-radius: 30px; }
+
+            .guideline-card { padding: 15px; padding-top: 60px; }
+            .guideline-close-btn { font-size: 0.9em; padding: 10px 20px; top: 10px; right: 15px; }
+
+            /* Setup card specific for mobile */
+            .setup-card {
+                padding: 20px;
+                gap: 10px;
+                max-height: 95vh;
+                justify-content: flex-start;
+            }
             .setup-card .section-title.popup-title { font-size: 1.8em; margin-bottom: 15px; }
-            .setup-card .input-group label { font-size: 1em; }
+            .setup-card .input-group label { font-size: 0.95em; margin-bottom: 5px; }
             .setup-card .input-group input, .setup-card .input-group select { padding: 10px; font-size: 0.9em; }
             .setup-card #startNewGameBtn { padding: 15px 25px; font-size: 1em; }
+            #setupPlayerNamesContainer .player-icon-emoji { max-width: 80px; }
+            #setupPlayerNamesContainer .file-upload-label { font-size: 0.8em; min-width: unset; padding: 6px 8px; }
         }
     </style>
 </head>
@@ -888,10 +1354,8 @@
         });
     }
     
-    // Modified handlePlayerIconUpload to accept a prefix for IDs
     function handlePlayerIconUpload(event, playerIndex, prefix = '') {
         const file = event.target.files[0];
-        // Adjust ID to match new setup prompt IDs
         const label = document.getElementById(`${prefix}Player${playerIndex}IconLabel`);
         const emojiInput = document.getElementById(`${prefix}Player${playerIndex}IconEmoji`);
 
@@ -900,7 +1364,7 @@
             reader.onload = (e) => {
                 label.textContent = `✅ ${file.name}`;
                 label.style.backgroundColor = '#d4edda';
-                if (emojiInput) emojiInput.value = ''; // Clear emoji input if image is uploaded
+                if (emojiInput) emojiInput.value = '';
             };
             reader.readAsDataURL(file);
         } else {
@@ -910,7 +1374,6 @@
     }
     
     async function loadDefaultAssets() {
-        // Load Logo
         try {
             const response = await fetch(DEFAULT_ASSETS.logo, { method: 'HEAD' });
             if (response.ok) {
@@ -923,7 +1386,6 @@
             }
         } catch (e) { console.warn("Default logo not found or inaccessible. Skipping logo display."); }
 
-        // Load Questions (Fatal if fails)
         try {
             const response = await fetch(DEFAULT_ASSETS.questions);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -932,13 +1394,12 @@
         } catch (error) {
             console.error('Fatal: Could not load default questions.csv. Please ensure "assets/questions.csv" exists and is accessible.', error);
             alert('Fatal Error: Could not load "assets/questions.csv". The game cannot start without questions. Please ensure the file is present.');
-            return; // Prevent game from starting if questions cannot be loaded
+            return;
         }
 
-        // Load Sounds
         for (const soundId in DEFAULT_ASSETS.sounds) {
             try {
-                const audioEl = document.getElementById(soundId + 'Audio'); // Corrected ID to target the audio tag
+                const audioEl = document.getElementById(soundId + 'Audio');
                 if (audioEl) {
                     const response = await fetch(DEFAULT_ASSETS.sounds[soundId], { method: 'HEAD' });
                     if (response.ok) {
@@ -952,11 +1413,9 @@
             }
         }
 
-        // Set initial volume and enable sounds if controls were visible (now hidden)
         const volumeControl = document.getElementById('volumeControl');
         if (volumeControl) {
-            volumeControl.value = gameState.volume * 100; // Convert to 0-100 range for slider
-            // Event listener for volume control is already setup in setupVolumeControl
+            volumeControl.value = gameState.volume * 100;
         }
     }
 
@@ -1016,29 +1475,25 @@
             } else { throw new Error("Questions CSV file is empty or has no valid question rows."); }
         } catch (error) {
             console.error(`Error parsing questions CSV: ${error.message}`);
-            throw error; // Re-throw to be caught by loadDefaultAssets
+            throw error;
         }
     }
 
     // --- NEW Helper Functions for Setup Prompt ---
-
     function showSetupPrompt() {
         document.getElementById('setupPromptPopup').classList.add('active');
-        // Populate player name inputs based on initial selection (default 4 players)
         updatePlayerInputsInSetupPrompt(parseInt(document.getElementById('setupNumPlayers').value));
 
-        // Add event listener for number of players dropdown in the setup prompt
         document.getElementById('setupNumPlayers').addEventListener('change', (e) => {
             updatePlayerInputsInSetupPrompt(parseInt(e.target.value));
         });
 
-        // Add event listener for the "Start New Game" button in the prompt
         document.getElementById('startNewGameBtn').onclick = beginGameSetupFromPrompt;
     }
 
     function updatePlayerInputsInSetupPrompt(num) {
         const container = document.getElementById('setupPlayerNamesContainer');
-        container.innerHTML = ''; // Clear previous inputs
+        container.innerHTML = '';
 
         for (let i = 1; i <= num; i++) {
             container.innerHTML += `
@@ -1060,7 +1515,6 @@
             `;
         }
 
-        // Re-add event listeners for emoji input to clear file input and vice versa
         for (let i = 1; i <= num; i++) {
             document.getElementById(`setupPlayer${i}IconEmoji`).addEventListener('input', (e) => {
                 if (e.target.value) {
@@ -1072,85 +1526,63 @@
         }
     }
 
-    // --- REPLACE THE EXISTING beginGameSetupFromPrompt FUNCTION WITH THIS ONE ---
-async function beginGameSetupFromPrompt() {
-    // If a game is already in progress, ask for confirmation to start a new one
-    if(gameState.gameStarted && !isGameOver()) {
-        if(!confirm("A game is already in progress. Are you sure you want to start a new one?")) {
-            return;
+    async function beginGameSetupFromPrompt() {
+        if(gameState.gameStarted && !isGameOver()) {
+            if(!confirm("A game is already in progress. Are you sure you want to start a new one?")) {
+                return;
+            }
+        }
+        
+        initializeGameState();
+        await loadDefaultAssets();
+
+        const numPlayers = parseInt(document.getElementById('setupNumPlayers').value);
+        gameState.players = await Promise.all(Array.from({ length: numPlayers }, async (_, i) => {
+            const playerName = document.getElementById(`setupPlayer${i + 1}Name`).value || `Player ${i + 1}`;
+            const playerIconEmoji = document.getElementById(`setupPlayer${i + 1}IconEmoji`).value;
+            const playerIconFile = document.getElementById(`setupPlayer${i + 1}IconFile`).files[0];
+
+            let iconType = 'initial';
+            let iconValue = playerName.charAt(0).toUpperCase();
+
+            if (playerIconEmoji) {
+                iconType = 'emoji';
+                iconValue = playerIconEmoji;
+            } else if (playerIconFile) {
+                iconType = 'image';
+                iconValue = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(playerIconFile);
+                });
+            }
+
+            return {
+                name: playerName,
+                position: 0,
+                stuckCounter: 0,
+                color: `player-${i + 1}`,
+                iconType: iconType,
+                iconValue: iconValue
+            };
+        }));
+        gameState.timerDuration = parseInt(document.getElementById('setupTimerDuration').value);
+
+        document.getElementById('setupPromptPopup').classList.remove('active');
+
+        if (gameState.allQuestionGroups.length > 1) {
+            populateAndShowGroupSelector();
+        } else if (gameState.allQuestionGroups.length === 1) {
+            gameState.selectedQuestionGroup = gameState.allQuestionGroups[0];
+            finalizeGameStart();
+        } else {
+            gameState.selectedQuestionGroup = 'general';
+            console.warn("No question groups found in CSV. Using 'general' group.");
+            finalizeGameStart();
         }
     }
-    
-    // Always re-initialize and load assets for a new game start (even if it's the first one)
-    initializeGameState();
-    await loadDefaultAssets(); // Re-load assets (questions, logo, sounds)
 
-    const numPlayers = parseInt(document.getElementById('setupNumPlayers').value);
-    gameState.players = await Promise.all(Array.from({ length: numPlayers }, async (_, i) => {
-        const playerName = document.getElementById(`setupPlayer${i + 1}Name`).value || `Player ${i + 1}`;
-        const playerIconEmoji = document.getElementById(`setupPlayer${i + 1}IconEmoji`).value;
-        const playerIconFile = document.getElementById(`setupPlayer${i + 1}IconFile`).files[0];
-
-        let iconType = 'initial';
-        let iconValue = playerName.charAt(0).toUpperCase();
-
-        if (playerIconEmoji) {
-            iconType = 'emoji';
-            iconValue = playerIconEmoji;
-        } else if (playerIconFile) {
-            iconType = 'image';
-            iconValue = await new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.readAsDataURL(playerIconFile);
-            });
-        }
-
-        return {
-            name: playerName,
-            position: 0,
-            stuckCounter: 0,
-            color: `player-${i + 1}`, // player-1, player-2, etc. for CSS colors
-            iconType: iconType,
-            iconValue: iconValue
-        };
-    }));
-    gameState.timerDuration = parseInt(document.getElementById('setupTimerDuration').value);
-
-    // Hide the setup prompt
-    document.getElementById('setupPromptPopup').classList.remove('active');
-
-    // --- NEW LOGIC FOR QUESTION GROUP SELECTION ---
-    if (gameState.allQuestionGroups.length > 1) {
-        // If multiple groups, show the group selection popup
-        populateAndShowGroupSelector();
-    } else if (gameState.allQuestionGroups.length === 1) {
-        // If only one group, auto-select it and proceed to game start
-        gameState.selectedQuestionGroup = gameState.allQuestionGroups[0];
-        finalizeGameStart(); // Call finalize directly
-    } else {
-        // No groups found, use a 'general' fallback and warn
-        gameState.selectedQuestionGroup = 'general';
-        console.warn("No question groups found in CSV. Using 'general' group.");
-        finalizeGameStart(); // Proceed to game start
-    }
-    // --- END NEW LOGIC ---
-}
-    // --- END NEW Helper Functions ---
-
-    function showGuidelines() {
-        window.open('assets/Game-Guidelines.pdf', '_blank');
-        const popup = document.getElementById('guidelinePopup');
-        const frame = document.getElementById('guidelineFrame');
-        frame.src = 'assets/Game-Guidelines.pdf';
-        popup.classList.add('active');
-    }
-
-    function closeGuidelines() {
-        document.getElementById('guidelinePopup').classList.remove('active');
-    }
-    
-    function populateAndShowGroupSelector() { // This function is now technically unused, as we skip group selection
+    function populateAndShowGroupSelector() {
         const container = document.getElementById('groupOptionsContainer');
         container.innerHTML = '';
         gameState.allQuestionGroups.forEach(group => {
@@ -1161,48 +1593,42 @@ async function beginGameSetupFromPrompt() {
             container.appendChild(btn);
         });
         document.getElementById('groupSelectionPopup').classList.add('active');
+        document.getElementById('finalizeStartBtn').disabled = true;
     }
 
-    function selectGroup(groupName, element) { // This function is now technically unused
+    function selectGroup(groupName, element) {
         gameState.selectedQuestionGroup = groupName;
-        document.querySelectorAll('.group-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('#groupOptionsContainer .group-option').forEach(opt => opt.classList.remove('selected'));
         element.classList.add('selected');
         document.getElementById('finalizeStartBtn').disabled = false;
     }
-    
-    // --- REPLACE THE EXISTING finalizeGameStart FUNCTION WITH THIS ONE ---
-function finalizeGameStart() {
-    // If this function is called, it means a group has been selected or auto-selected
-    if (!gameState.selectedQuestionGroup) {
-        // This case should ideally not happen with the new flow, but as a safeguard:
-        alert("Error: A question group was not selected. Cannot start game.");
-        resetGame(); // Go back to fresh start
-        return;
-    }
-    
-    // Hide the group selection popup (if it was shown)
-    document.getElementById('groupSelectionPopup').classList.remove('active');
-    
-    // Filter questions for the selected group
-    gameState.availableQuestions = gameState.masterQuestions.filter(q => q.group === gameState.selectedQuestionGroup);
-    gameState.usedQuestions = [];
 
-    if (gameState.availableQuestions.length === 0) {
-        alert(`Error: No questions found for the selected group "${gameState.selectedQuestionGroup}". Please check your CSV file.`);
-        resetGame(); // Critical error, reset game
-        return;
+    function finalizeGameStart() {
+        if (!gameState.selectedQuestionGroup) {
+            alert("Error: A question group was not selected. Cannot start game.");
+            resetGame();
+            return;
+        }
+        
+        document.getElementById('groupSelectionPopup').classList.remove('active');
+        
+        gameState.availableQuestions = gameState.masterQuestions.filter(q => q.group === gameState.selectedQuestionGroup);
+        gameState.usedQuestions = [];
+
+        if (gameState.availableQuestions.length === 0) {
+            alert(`Error: No questions found for the selected group "${gameState.selectedQuestionGroup}". Please check your CSV file.`);
+            resetGame();
+            return;
+        }
+        
+        gameState.gameStarted = true;
+        document.getElementById('gameSection').classList.add('active');
+        
+        history = [];
+        historyIndex = -1;
+        saveStateToHistory();
+        updateAllUI();
     }
-    
-    gameState.gameStarted = true;
-    // document.getElementById('setupSection').classList.remove('active'); // REMOVED: Old setup section is deleted
-    document.getElementById('gameSection').classList.add('active'); // Ensure game section is active
-    
-    // Final setup steps for starting a new game
-    history = [];
-    historyIndex = -1;
-    saveStateToHistory();
-    updateAllUI();
-}
     
     function updatePlayersDisplay() {
         const list = document.getElementById('playersList');
@@ -1232,43 +1658,37 @@ function finalizeGameStart() {
             let playerEl = document.querySelector(`.player.player-${index + 1}`);
 
             if (player.position === 0 || gameState.winners.some(w => w.name === player.name)) {
-                // If player is at start (0) or has won, remove their pawn if it exists
                 if (playerEl) {
                     playerEl.remove();
                 }
-                return; // Don't draw player if at start or won
+                return;
             }
 
             if (!playerEl) {
-                // Create player element if it doesn't exist
                 playerEl = document.createElement('div');
-                playerEl.className = `player player-${index + 1}`; // Add unique class for identification
-                board.appendChild(playerEl); // Append to the board, not a cell
+                playerEl.className = `player player-${index + 1}`;
+                board.appendChild(playerEl);
             }
 
-            // Render player icon/text
             if (player.iconType === 'image') {
                 if (!playerEl.querySelector('img.avatar')) {
-                    playerEl.innerHTML = ''; // Clear existing content
+                    playerEl.innerHTML = '';
                     const img = document.createElement('img');
                     img.className = 'avatar';
                     playerEl.appendChild(img);
                 }
                 playerEl.querySelector('img.avatar').src = player.iconValue;
-                playerEl.textContent = ''; // Ensure no text if image
+                playerEl.textContent = '';
             } else {
-                // For emoji or initial, display as text content
                 if (playerEl.querySelector('img.avatar')) {
                     playerEl.querySelector('img.avatar').remove();
                 }
                 playerEl.textContent = player.iconValue;
-                playerEl.style.backgroundImage = 'none'; // Clear any background image
+                playerEl.style.backgroundImage = 'none';
             }
 
-            // Calculate target position and apply transform
             const targetCoords = getCellCoordinates(player.position);
 
-            // Adjust for multiple players on the same square
             let offsetDx = 0;
             let offsetDy = 0;
             const playersAtSamePos = gameState.players.filter(
@@ -1276,7 +1696,7 @@ function finalizeGameStart() {
             );
             if (playersAtSamePos.length > 1) {
                 const playerIndexAtPos = playersAtSamePos.findIndex(p => p.name === player.name);
-                const offsetAmount = 10; // Increased offset for larger pawns
+                const offsetAmount = 10;
                 if (playerIndexAtPos === 0) { /* no offset */ }
                 else if (playerIndexAtPos === 1) { offsetDx = offsetAmount; }
                 else if (playerIndexAtPos === 2) { offsetDy = offsetAmount; }
@@ -1292,7 +1712,6 @@ function finalizeGameStart() {
 
     function skipTurn() {
         if (isGameOver() || document.getElementById('rollButton').disabled) return;
-        
         nextPlayer();
         updateAllUI();
         saveStateToHistory();
@@ -1402,7 +1821,7 @@ function finalizeGameStart() {
     }
 
     function selectOption(index, el) {
-        if (gameState.isSubmitting) return;    
+        if (gameState.isSubmitting) return;
         document.querySelectorAll('.option.selected').forEach(opt => opt.classList.remove('selected'));
         el.classList.add('selected');
         gameState.selectedOption = index;
@@ -1412,7 +1831,7 @@ function finalizeGameStart() {
         if (gameState.isSubmitting) return;
         gameState.isSubmitting = true;
 
-        const timerTickAudio = document.getElementById('timerTickSoundAudio'); // Corrected ID
+        const timerTickAudio = document.getElementById('timerTickSoundAudio');
         if (timerTickAudio) {
             timerTickAudio.pause();
             timerTickAudio.currentTime = 0;
@@ -1438,7 +1857,7 @@ function finalizeGameStart() {
             if (isCorrect) playSound('correctSound');
             else playSound('wrongSound');
             handleMove(diceRoll, isCorrect);
-            gameState.isSubmitting = false;    
+            gameState.isSubmitting = false;
         }, 2000);
     }
     
@@ -1463,62 +1882,48 @@ function finalizeGameStart() {
         const path = [];
         let currentPos = oldPosition;
 
-        // Disable dice and skip buttons during movement
         document.getElementById('rollButton').disabled = true;
         document.getElementById('skipTurnButton').disabled = true;
 
-        // Determine the path cell by cell
         if (isCorrect) {
             for (let i = 1; i <= steps; i++) {
                 const nextPos = oldPosition + i;
                 if (nextPos <= BOARD_SIZE) {
                     path.push(nextPos);
                 } else {
-                    // If moving beyond BOARD_SIZE, just add current cell and stop.
-                    // The stuck logic will handle remaining turns.
                     break;
                 }
             }
         } else {
-            // If wrong answer, player doesn't move, but we need to check for snake if they land on one.
-            // We simulate a "move" to the potential position to check for snakes.
             const potentialPosition = oldPosition + steps;
             if (SNAKES[potentialPosition] && potentialPosition <= BOARD_SIZE) {
-                path.push(potentialPosition); // Only move to the snake head
+                path.push(potentialPosition);
             }
         }
 
-        // Function to animate step by step
         const animateStep = (index) => {
             if (index < path.length) {
                 currentPos = path[index];
-                player.position = currentPos; // Update player's internal position
-                updateGameBoard(); // Redraw player at new position
-
-                playSound('moveSound'); // Play move sound for each step if desired, or once for the whole movement
-
-                // Recursively call for the next step after a delay
-                setTimeout(() => animateStep(index + 1), 200); // Adjust delay for speed of step-by-step movement
+                player.position = currentPos;
+                updateGameBoard();
+                playSound('moveSound');
+                setTimeout(() => animateStep(index + 1), 200);
             } else {
-                // All steps moved, now check for snakes/ladders or finish turn
                 handlePostMoveEffects(player, oldPosition, isCorrect, steps);
             }
         };
 
         if (path.length > 0) {
-            animateStep(0); // Start animation from the first step
+            animateStep(0);
         } else {
-            // No movement needed (e.g., wrong answer but no snake, or moved past 100)
             handlePostMoveEffects(player, oldPosition, isCorrect, steps);
         }
     }
 
-    // Add this new helper function somewhere near `handleMove`
     function handlePostMoveEffects(player, oldPosition, isCorrect, steps) {
         let finalPosition = player.position;
         let effectOccurred = false;
 
-        // Check for Snake/Ladder only if player moved successfully or landed on potential snake
         if (isCorrect) {
             if (LADDERS[finalPosition]) {
                 player.position = LADDERS[finalPosition];
@@ -1529,22 +1934,19 @@ function finalizeGameStart() {
                 playSound('snakeSound');
                 effectOccurred = true;
             }
-        } else { // Wrong answer logic
+        } else {
             const potentialPosition = oldPosition + steps;
             if (SNAKES[potentialPosition] && potentialPosition <= BOARD_SIZE) {
                 player.position = SNAKES[potentialPosition];
                 playSound('snakeSound');
                 effectOccurred = true;
             }
-            // If wrong answer and no snake, player stays put (oldPosition == finalPosition)
-            // and just loses turn.
         }
 
         if (isCorrect && player.position > BOARD_SIZE) {
-            // This case handles when an answer is correct but the roll goes past 100
             player.stuckCounter++;
-            player.position = oldPosition; // Player remains at previous position
-            updateGameBoard(); // Ensure player pawn visually stays in place
+            player.position = oldPosition;
+            updateGameBoard();
             finishTurn();
             return;
         }
@@ -1556,14 +1958,13 @@ function finalizeGameStart() {
         }
 
         if (effectOccurred) {
-            updateGameBoard(); // Redraw pawn at new snake/ladder position
+            updateGameBoard();
             setTimeout(() => {
-                player.stuckCounter = 0; // Reset stuck counter only if a move or effect happened
+                player.stuckCounter = 0;
                 finishTurn();
-            }, 600); // Delay for snake/ladder animation
+            }, 600);
         } else {
-            // No snake/ladder/win effect, just finish turn immediately
-            player.stuckCounter = isCorrect ? 0 : player.stuckCounter + 1; // Increment stuck if wrong, reset if correct move happened
+            player.stuckCounter = isCorrect ? 0 : player.stuckCounter + 1;
             finishTurn();
         }
     }
@@ -1572,7 +1973,6 @@ function finalizeGameStart() {
         do {
             gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
         } while (gameState.winners.some(p => p.name === gameState.players[gameState.currentPlayerIndex].name) && !isGameOver());
-        
         updateCurrentPlayerDisplay();
     }
     
@@ -1593,7 +1993,7 @@ function finalizeGameStart() {
         document.getElementById('skipTurnButton').disabled = true;
         document.getElementById('currentPlayerDisplay').textContent = "Game Over!";
         updateHeaderButtons();
-        saveStateToHistory();    
+        saveStateToHistory();
     }
     
     function forceEndGame() {
@@ -1604,23 +2004,20 @@ function finalizeGameStart() {
     }
     
     function resetGame() {
-        initializeGameState(); // Reset game state
-
-        // Reset logo display (if it was customized, put default back)
+        initializeGameState();
         const headerImg = document.getElementById('gameLogoImg');
         if (headerImg) {
-            headerImg.src = DEFAULT_ASSETS.logo; // Set back to default logo
+            headerImg.src = DEFAULT_ASSETS.logo;
             headerImg.style.display = 'block';
             const spanEl = headerImg.parentElement.querySelector('span');
-            if (spanEl) spanEl.style.display = 'none'; // Hide default dice/emoji
+            if (spanEl) spanEl.style.display = 'none';
         }
         const boardImg = document.getElementById('boardLogoImg');
         if (boardImg) {
-            boardImg.src = DEFAULT_ASSETS.logo; // Set back to default board logo
+            boardImg.src = DEFAULT_ASSETS.logo;
             boardImg.style.display = 'block';
         }
 
-        // Hide game section, winners section, and reset dice display
         document.getElementById('gameSection').classList.remove('active');
         document.getElementById('winnersSection').style.display = 'none';
         document.getElementById('dice').textContent = '🎲';
@@ -1628,38 +2025,33 @@ function finalizeGameStart() {
         document.getElementById('skipTurnButton').disabled = false;
         document.getElementById('svgLayer').innerHTML = '';
         
-        // Clear the board of players
         document.querySelectorAll('.player').forEach(p => p.remove());
 
-        history = []; // Clear history
+        history = [];
         historyIndex = -1;
         updateHistoryButtons();
         updateHeaderButtons();
-        createBoard(); // Re-draw board visuals (snakes/ladders)
+        createBoard();
 
-        // Load default assets again (questions etc.) and show the setup prompt
-        // This will also load default sounds again
-        loadDefaultAssets().then(() => { // Ensure assets are loaded before showing prompt
+        loadDefaultAssets().then(() => {
             showSetupPrompt();
         });
     }
     
     function playSound(soundId) {
         if (gameState.soundEnabled) {
-            const audio = document.getElementById(soundId + 'Audio'); // Corrected ID here
+            const audio = document.getElementById(soundId + 'Audio');
             if (audio && audio.src) {
                 audio.volume = gameState.volume;
                 audio.currentTime = 0;
                 audio.play().catch(e => {
                     // Autoplay restrictions are common.
-                    // console.warn(`Autoplay prevented for ${soundId}:`, e);
                 });
             }
         }
     }
     
     function updateSoundVolume() {
-        // Iterate through all default sounds and update their volume
         for (const soundKey in DEFAULT_ASSETS.sounds) {
             const audio = document.getElementById(soundKey + 'Audio');
             if (audio) {
@@ -1678,8 +2070,6 @@ function finalizeGameStart() {
         const btn = document.getElementById('headerFullscreenBtn');
         btn.textContent = document.fullscreenElement ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
     });
-
 </script>
-
 </body>
 </html>
